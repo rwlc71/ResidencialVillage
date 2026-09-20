@@ -3,6 +3,7 @@
 // Incluindo a biblioteca FPDF e Code128
 require('fpdf/fpdf.php');
 require('fpdf/code128.php');
+require_once('Libs/phpqrcode/qrlib.php');
 
 include "conexao.php";
 include "valida/verifica_autenticacao.php";
@@ -34,10 +35,17 @@ $num_rows = mysql_num_rows($filtro);
 
 while ($ln = mysql_fetch_array($filtro)) {
     $cpf = $ln['CPF'];
-    $tamanho = strlen($cpf);
-    $cpf = $tamanho > 11 ? mask($cpf, '##.###.###/####-##') : mask($cpf, '###.###.###-##');
-    $ln['telefone'] = mask($ln['telefone'], '(##) #####-#####');
+    $valorLimpo = preg_replace('/\D/', '', $cpf);
+    $tamanho = strlen($valorLimpo);
+    if ($tamanho === 11) {       // CPF
+        $cpf = mask($valorLimpo, '###.###.###-##');
+    } elseif ($tamanho === 14) {      // CNPJ
+        $cpf = mask($valorLimpo, '##.###.###/####-##');
+    } else {     // Não é CPF nem CNPJ válido → sem formatação
+        $cpf = $valorLimpo;
+    }
 
+    $ln['telefone'] = mask($ln['telefone'], '(##) #####-#####');
     $dt_entrada = strftime('%d de %B de %Y', strtotime($ln['dt_entrada']));
     $dt_saida = strftime('%d de %B de %Y', strtotime($ln['dt_saida']));
 
@@ -47,12 +55,54 @@ while ($ln = mysql_fetch_array($filtro)) {
     $pdf->Cell(0, 10, utf8_decode('AUTORIZAÇÃO DE HOSPEDAGEM'), 0, 1, 'R');
     $pdf->Ln(6);
 
+//    $pdf->SetFont('Times', 'B', 11);
+//    $pdf->Cell(0, 5, utf8_decode('RESIDENCIAL VILLAGE THERMAS DAS CALDAS'), 0, 1, 'L');
+//    $pdf->SetFont('Times', '', 11);
+//    $pdf->Cell(0, 5, utf8_decode('Caldas Novas - Goiás'), 0, 1, 'L');
+//    $pdf->Ln(6);
+//=======================================
+// LINHA COM TEXTO À ESQUERDA E QRCODE À DIREITA 
+    // Define posição inicial Y
+    $yInicial = $pdf->GetY();
     $pdf->SetFont('Times', 'B', 11);
-    $pdf->Cell(0, 5, utf8_decode('RESIDENCIAL VILLAGE THERMAS DAS CALDAS'), 0, 1, 'L');
+
+// Posição do texto (esquerda)
+    $pdf->SetXY(10, $yInicial);
+    $pdf->Cell(0, 5, utf8_decode('RESIDENCIAL VILLAGE THERMAS DAS CALDAS'), 0, 0, 'L');
+
+// Gera QR Code
+    $tempDir = dirname(__FILE__) . "/temp";
+    if (!file_exists($tempDir)) {
+        mkdir($tempDir, 0777, true);
+    }
+    $host = $_SERVER['HTTP_HOST']; // Exemplo: www.seudominio.com
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $parts = explode('/', trim($path, '/'));
+    $firstPart = isset($parts[0]) ? $parts[0] : '';
+    $url = $host . "/" . $firstPart . "/validador1.php?codigo=";
+
+    $codValidacao = $ln['codvalidacao'];
+    $qrContent = $url . $codValidacao;
+    $arquivoQR = $tempDir . "/qr_" . uniqid() . ".png";
+    QRcode::png($qrContent, $arquivoQR, 'H', 4, 2);
+
+// Tamanho do QR
+    $larguraQR = 25;
+
+// Posição do QR (alinhado à direita, margem de 10)
+    $xQR = $pdf->GetPageWidth() - $larguraQR - 12;
+    $yQR = $yInicial - 7; // mesmo Y do texto
+
+    $pdf->Image($arquivoQR, $xQR, $yQR, $larguraQR, $larguraQR);
+    unlink($arquivoQR);
+
+// Continua com a próxima linha (ex: "Caldas Novas - Goiás")
+    $pdf->Ln(6);
     $pdf->SetFont('Times', '', 11);
     $pdf->Cell(0, 5, utf8_decode('Caldas Novas - Goiás'), 0, 1, 'L');
-    $pdf->Ln(6);
+    $pdf->Ln(8);
 
+//======================================= 
     // Informações principais
     $pdf->SetFont('Times', 'B', 11);
     $pdf->Cell(13, 6, 'CASA:'); // Texto "Casa" em negrito
@@ -96,38 +146,103 @@ while ($ln = mysql_fetch_array($filtro)) {
     $pdf->Cell(28, 10, utf8_decode('Usuários:'));
     $pdf->Ln(8);
 
+//    $pdf->SetFont('Times', '', 11);
+//    $pdf->Cell(36, 6, utf8_decode('Nome do responsável:'));
+//    $pdf->SetFont('Times', '', 11);
+//    $texto_limitado = substr($ln['resp_locacao'], 0, 23);
+//    $pdf->Cell(55, 6, utf8_decode(strtoupper($texto_limitado)));
+//
+//    $pdf->SetFont('Times', '', 11);
+//    $pdf->Cell(15, 6, utf8_decode('CPF/RG:'));
+//    $pdf->SetFont('Times', '', 11);
+//    $texto_limitado = substr($ln['doc_identificacao_resp'], 0, 20);
+//    $pdf->Cell(40, 6, utf8_decode($texto_limitado));
+//
+//    $pdf->SetFont('Times', '', 11);
+//    $pdf->Cell(14, 6, utf8_decode('Vínculo:'));
+//    $pdf->SetFont('Times', '', 11);
+//    $texto_limitado = substr($ln['parentesco'], 0, 26);
+//    $pdf->Cell(0, 6, utf8_decode(strtoupper($texto_limitado)));
+//    $pdf->Ln(6);
+//==============================================================================================
     $pdf->SetFont('Times', '', 11);
-    $pdf->Cell(36, 6, utf8_decode('Nome do responsável:'));
-    $pdf->SetFont('Times', '', 11);
-    $texto_limitado = substr($ln['resp_locacao'], 0, 23);
-    $pdf->Cell(55, 6, utf8_decode(strtoupper($texto_limitado)));
 
-    $pdf->SetFont('Times', '', 11);
-    $pdf->Cell(15, 6, utf8_decode('CPF/RG:'));
-    $pdf->SetFont('Times', '', 11);
-    $texto_limitado = substr($ln['doc_identificacao_resp'], 0, 20);
-    $pdf->Cell(40, 6, utf8_decode($texto_limitado));
+// Posição inicial da linha
+    $yLinha = $pdf->GetY();
+    $xInicial = 10; // margem esquerda
+// --- Cabeçalhos fixos com Cell --- //
+    $pdf->SetXY($xInicial, $yLinha);
+    $pdf->SetFont('Times', 'B', 11);
+    $pdf->Cell(36, 4, utf8_decode('Nome do responsável: '), 0, 0);
+    $pdf->Cell(53, 4, ' ', 0, 0); // espaço do valor
 
-    $pdf->SetFont('Times', '', 11);
-    $pdf->Cell(14, 6, utf8_decode('Vínculo:'));
-    $pdf->SetFont('Times', '', 11);
-    $texto_limitado = substr($ln['parentesco'], 0, 26);
-    $pdf->Cell(0, 6, utf8_decode(strtoupper($texto_limitado)));
-    $pdf->Ln(6);
 
+    $pdf->Cell(15, 4, utf8_decode('CPF/RG: '), 0, 0);
+    $pdf->Cell(38, 4, '', 0, 0); // espaço do valor
+
+    $pdf->Cell(14, 4, utf8_decode('Vínculo: '), 0, 0);
+    $pdf->Cell(0, 4, '', 0, 1); // final da linha
+// --- Coordenadas para os valores --- //
+    $xResp = $xInicial + 36;
+    $xDoc = $xResp + 55 + 15;
+    $xVinc = $xDoc + 40 + 14;
+    if ($ln['parentesco'] == "Parente até 4º Grau") {
+        $ln['parentesco'] = "Familar";
+    }
+    $pdf->SetFont('Times', '', 11);
+
+// Variáveis formatadas
+    $resp = strtoupper(trim($ln['resp_locacao']));
+    $doc = trim($ln['doc_identificacao_resp']);
+
+    $valorLimpo1 = preg_replace('/\D/', '', $doc);
+    $tamanho1 = strlen($valorLimpo1);
+    if ($tamanho1 === 11) {       // CPF
+        $doc = mask($valorLimpo1, '###.###.###-##');
+    } elseif ($tamanho1 === 14) {      // CNPJ
+        $doc = mask($valorLimpo1, '##.###.###/####-##');
+    } else {     // Não é CPF nem CNPJ válido → sem formatação
+        $doc = $valorLimpo1;
+    }
+
+    $ln['telefone'] = mask($ln['telefone'], '(##) #####-#####');
+    $parentesco = (trim($ln['parentesco']));
+
+// --- Imprime os valores com MultiCell() nas posições corretas --- //
+    $pdf->SetXY($xResp + 2, $yLinha);
+    $pdf->MultiCell(53, 4, utf8_decode($resp), 0, 'L');
+
+    $pdf->SetXY($xDoc, $yLinha);
+    $pdf->MultiCell(39, 4, utf8_decode($doc), 0, 'L');
+
+    $pdf->SetXY($xVinc, $yLinha);
+    $larguraRestante = $pdf->GetPageWidth() - $xVinc - 10;
+    $pdf->MultiCell($larguraRestante, 4, utf8_decode($parentesco), 0, 'L');
+
+// Ajuste Y para espaço de 2 linhas (12 pontos)
+    $novaAltura = max($pdf->GetY(), $yLinha + 11);
+    $pdf->SetY($novaAltura);
+    $pdf->Ln(4); // espaço adicional, se quiser mais ainda
+//==============================================================================================
     $consulta2 = "SELECT * FROM hospede WHERE id_locacao = " . $id;
     $consulta2 = mysql_query($consulta2);
     $linha = 0;
-    $pdf->SetFont('Times', '', 11);
+    $pdf->SetFont('Times', '', 10);
 
     while ($ln_hospede = mysql_fetch_array($consulta2)) {
+        if ($ln_hospede['parentesco_hospede'] == "Parente até 4º Grau") {
+            $ln_hospede['parentesco_hospede'] = "Familar";
+        }
+        if ($ln_hospede['parentesco_hospede'] == "Locação por Temporada") {
+            $ln_hospede['parentesco_hospede'] = "Temporada";
+        }
         $nomehospede = substr($ln_hospede['nome_hospede'], 0, 23);
         $doc_hospede = substr($ln_hospede['doc_hospede'], 0, 15);
         $parentesco_hospede = substr($ln_hospede['parentesco_hospede'], 0, 13);
         $linha++;
         $pdf->Cell(91, 5, $linha . '. Acompanhante: ' . strtoupper(utf8_decode($nomehospede)));
         $pdf->Cell(55, 5, 'CPF/RG: ' . strtoupper($doc_hospede));
-        $pdf->Cell(55, 5, utf8_decode('Vínculo: ') . strtoupper(utf8_decode($parentesco_hospede)), 0, 1);
+        $pdf->Cell(55, 5, utf8_decode('Vínculo: ') . (utf8_decode($parentesco_hospede)), 0, 1);
     }
 
     $linha = $linha + 1;
@@ -205,13 +320,12 @@ while ($ln = mysql_fetch_array($filtro)) {
     $pdf->Ln(15);
 //    $pdf->MultiCell(0, 5, utf8_decode('5. Freqüentar o clube do Condomínio sempre portando convites fornecidos pelo proprietário da casa ocupada.'));
 // Adicionando código de barras no final
-    $pdf->Ln(10);
-    $codValidacao = $ln['codvalidacao'];
-    $pdf->Barcode(12, $pdf->GetY(), $codValidacao, 10.0, 8, 'R');
-    
-    $pdf->Ln(3);
-    $pdf->SetFont('Times', 'B', 8);
-    $pdf->Cell(0, 13, utf8_decode(' ') . utf8_decode($ln['codvalidacao']), 0, 0, 'L'); // Código centralizado no rodapé
+//    $pdf->Ln(10);
+//    $codValidacao = $ln['codvalidacao'];
+//    $pdf->Barcode(12, $pdf->GetY(), $codValidacao, 10.0, 8, 'R');
+//    $pdf->Ln(3);
+//    $pdf->SetFont('Times', 'B', 8);
+//    $pdf->Cell(0, 13, utf8_decode(' ') . utf8_decode($ln['codvalidacao']), 0, 0, 'L'); // Código centralizado no rodapé
     //
     // Gerando o arquivo PDF
     $pdfOutputPath = 'autorizacao_hospedagem.pdf';

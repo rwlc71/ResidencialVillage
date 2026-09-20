@@ -89,6 +89,7 @@ include "valida/valida_cpf.php";
 include "valida/mascaraCPF.php";
 include "valida/mascaras.php";
 include "topo.php";
+date_default_timezone_set('America/Sao_Paulo');
 
 $disabled = 'disabled';
 $cpf = $_COOKIE['usuario'];
@@ -186,17 +187,24 @@ $listalocacao = false;
                 <tr>
                     <th align="left" bgcolor="#ffffff"><font size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Responsável pela locação:</font></th>
                     <td>
-                        <input type="text" value="" name="resp_loc" size="60" maxlength="23"/>
+                        <input type="text" value="" name="resp_loc" size="60" maxlength="60"/>
 
                     </td>
                 </tr>
-                <tr>
-                    <th align="left" bgcolor="#ffffff"><font size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identificação:</font></th>
+                 <tr>
+                    <th align="left" bgcolor="#ffffff"><font size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CPF do Responsável:</font></th>
                     <td>
-                        <input type="text" value="" name="identificacao_resp_loc" size="20" maxlength="20"/>
-                        <font size="2"><b><?= $descParentesco ?>: </b></font>
-                        <input type="text" id="parentesco" name="parentesco" size="26" maxlength="20" placeholder="Exemplo: pai, filho, sócio, filiado..."/>
-                    </td>
+                        <input type="text" value="" name="identificacao_resp_loc" size="20"  maxlength="20" 
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Somente números"/>
+
+                        <font size="2"><b>Vínculo: </b></font>
+                        <select id="parentesco" name="parentesco">
+                            <option value="">Selecione...</option>
+                            <option value = "Parente até 4º Grau">Parente até 4º Grau</option>
+                            <option value = "Convidado">Convidado</option>
+                            <option value = "Locação por Temporada">Locação por Temporada</option>
+                        </select>
+					</td>
                 </tr>
                 <tr>
                     <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Telefone do responsável:</th>
@@ -333,8 +341,8 @@ $listalocacao = false;
                     <tr>
                         <td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Etapa</b></td>
                         <td width="15%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Tipo de Unidade</b></td>
-                        <td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Nº Quartos</b></td>
-                        <td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Capacidade</b></td>
+                        <!--<td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Nº Quartos</b></td>-->
+                        <!--<td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Capacidade</b></td>-->
                         <td width="2%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Qtde Hospedes</b></td>
                         <td width="4%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Data de Entrada</b></td>
                         <td width="4%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Data de Saída</b></td>
@@ -362,13 +370,26 @@ $listalocacao = false;
                                 '</a>' .
                                 '</td>';
 
-                        $dataComparacao = DateTime::createFromFormat('Y-m-d', $ln_locacao['dt_entrada']);
+                        $dataComparacao = DateTime::createFromFormat('Y-m-d', $ln_locacao['dt_saida']);
+                        $dataComparacaoEntrada = DateTime::createFromFormat('Y-m-d', $ln_locacao['dt_entrada']);
                         $hoje = new DateTime();
                         $hoje->setTime(0, 0); // Reseta o horário para meia-noite
 
                         If (!isDataMaiorQueHoje($ln_locacao['dt_entrada'])) {
-                            $editarReserva = '';
-                            $incluirHospede = '';
+                            $editarReserva = '<td align="center" valign="middle" bgcolor="#FFFFFA">' .
+                                    '<img src="images/encerrado.png"  height=20 width=20 align="middle" border="0" title="Reserva em vigência - Não Editável">' .
+                                    '</td>';
+                            $incluirHospede = '<td align="center" valign="middle" bgcolor="#FFFFFA">' .
+                                    '<img src="images/porta.png"  height=20 width=20 align="middle" border="0" title="Reserva em vigência - Não Editável">' .
+                                    '</td>';
+                        }
+                        If (!isDataMaiorQueHoje($ln_locacao['dt_saida'])) {
+                            $editarReserva = '<td align="center" valign="middle" bgcolor="#FFFFFA">' .
+                                    '<img src="images/encerrado.png"  height=20 width=20 align="middle" border="0" title="Reserva expirada">' .
+                                    '</td>';
+                            $incluirHospede = '<td align="center" valign="middle" bgcolor="#FFFFFA">' .
+                                    '<img src="images/porta.png"  height=20 width=20 align="middle" border="0" title="Reserva expirada">' .
+                                    '</td>';
                         }
 
                         $visualizarcomprovante = '<td align="center" valign="middle" bgcolor="#FFFFFA">' .
@@ -412,8 +433,8 @@ $listalocacao = false;
                             <td align="center"><font size="2"; color="#000000"><?= $etapa ?></td>
         <!--                            <td align="center"><font size="2"; color="#000000">  <?= $ln_unidade['numero_etapa'] ?></td>-->
                             <td align="left"><font size="2"; color="#000000"><?= $ln_unidade['tipo_unidade'] ?></td>
-                            <td align="center"><font size="2"; color="#000000"><?= $ln_unidade['qtde_quartos'] ?> </td>
-                            <td align="center"><font size="2"; color="#000000"><?= $ln_unidade['capacidade'] ?> </td>
+                            <!--<td align="center"><font size="2"; color="#000000"><?= $ln_unidade['qtde_quartos'] ?> </td>-->
+                            <!--<td align="center"><font size="2"; color="#000000"><?= $ln_unidade['capacidade'] ?> </td>-->
 
                             <td align="center"><font size="2"; color="#000000"><?= $ln_locacao['qtde_hospedes'] ?> </td>
                             <td align="center"><font size="2"; color="#000000"><?= $dt_entrada ?> </td>

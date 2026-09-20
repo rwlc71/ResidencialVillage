@@ -2,6 +2,8 @@
 <link rel="stylesheet" href="css/menu.css" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <?php
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 include "topo.php";
 include "conexao.php";
 
@@ -52,27 +54,30 @@ if (!$_POST['botao']) {
 //        echo(($sql));
 
         $sql = mysql_query($sql);
-//        echo(mysql_num_rows($sql));
+//        echo(mysql_num_rows($sql).'<p>');
 //        echo(var_dump($_POST));
 //        exit();
-        if ($_POST['usuario'] == ""){
-        echo "<meta http-equiv='refresh' content='0; URL=password.php'>
+        if ($_POST['usuario'] == "") {
+            echo "<meta http-equiv='refresh' content='0; URL=password.php'>
 		<script type=\"text/javascript\">
 		alert(\"Preencha os dados de usuário!\");
 		</script>
                 ";
-        return die;
+            return die;
         }
         if (mysql_num_rows($sql) == false) {
             echo "<meta http-equiv='refresh' content='0; URL=password.php'>
 		<script type=\"text/javascript\">
 		alert(\"Usuário não cadastrado!\");
-		</script>
-                ";
+		</script> ";
             return die;
         } else {
-            header("Location: funcoes/gerarnovasenha.php?usuario=$usuario");
-            return die;
+//            header("Location: funcoes/gerarnovasenha.php?usuario=$usuario");
+//            die;
+            // Protege a variável (para evitar problemas de injeção)
+            $usuario = mysql_real_escape_string($usuario);
+            // Chama o script diretamente, sem interromper o fluxo
+            include 'funcoes/gerarnovasenha.php';
         }
     } else if ($_POST['botao'] == "Atualizar senha") {
         $usuario = $_POST['usuario'];
@@ -86,19 +91,36 @@ if (!$_POST['botao']) {
                 alert(\"Todos os campos devem ser preenchidos\");
 		</script>
 	";
+            return die();
         }
         $sql = "SELECT id_proprietario FROM usuarios WHERE usuario = '$usuario' and  senha = '$senha'";
 //        echo('sql: ' . $sql . "<p>");
+
         $sql = mysql_query("SELECT id_proprietario FROM usuarios WHERE usuario = '$usuario' and  senha = '$senha'");
 //        $ln = mysql_fetch_array($sql);
+        $rows = mysql_num_rows($sql);
+        if ($rows == '0') {
+            echo "<meta http-equiv='refresh' content='0; URL=password.php'>
+		<script type=\"text/javascript\">
+                alert(\"Usuário e senha não encontrados. Clique em esqueci minha a senha!\");
+		</script>
+	";
+            return die();
+        }
+
         if ($sql) {
-//            echo 'Consulta realizada com sucesso!';
+//            echo('rows:' . $rows);
+//            echo('Consulta realizada com sucesso!');
+//            exit();
             // Se você deseja manipular os resultados, pode fazer isso aqui
             while ($linha = mysql_fetch_assoc($sql)) {
                 $id_proprietario = $linha['id_proprietario'];
-//                print_r($id_proprietario);
+//                echo($id_proprietario);
+//                exit();
             }
         } else {
+//            echo('Consulta NÂO realizada com sucesso!');
+//            exit();
             if (mysql_error()) {
                 $erro = mysql_error();
                 echo "<meta http-equiv='refresh' content='0; URL=password.php'>
@@ -123,6 +145,8 @@ if (!$_POST['botao']) {
 	";
         } else {
             if (mysql_num_rows($sql) == true) {
+//                echo('Chegou aqui');
+//                exit();
                 $sql = "UPDATE usuarios SET senha = '" . $newsenha . "' WHERE id_proprietario = '" . $id_proprietario . "'";
                 mysql_query($sql);
                 echo "<meta http-equiv='refresh' content='0; URL=proprietarios.php'>

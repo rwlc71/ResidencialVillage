@@ -121,7 +121,7 @@ $totalHospedes = 0;
                 $where = Array();
 
                 if ($_POST['cpf']) {
-                    $cpf = trim($_POST['cpf']);
+                    $cpf = $_POST['cpf'];
                     $cpf = str_replace(".", "", $cpf);
                     $cpf = str_replace("-", "", $cpf);
                     $cpf = str_replace("/", "", $cpf);

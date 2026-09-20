@@ -33,7 +33,7 @@ if ($_POST['botao'] != "Autenticar") {
         <div id="cont">
             <h2>Página de autenticação</h2>
             <hr>
-            <form method="post" action="autentica.php">
+            <form method="post" action="autentica1.php">
                 <table width="353" border="0">
                     <tr>
                         <th width="61" align="left" scope="col">Usuário:</th>
@@ -64,14 +64,25 @@ if ($_POST['botao'] != "Autenticar") {
                     if ($lgpd == 1) {
                         $expire_time = time() + (60 * 180);
                         $nome = strtoupper($lnome['nome']);
-//                    $_SESSION['senha'] = $ln['senha'];
                         $_SESSION['nome_usuario'] = $nome;
                         $_SESSION['tipo_acesso'] = $ln['tipo_acesso'];
                         $_SESSION['usuario'] = $ln['usuario'];
                         setcookie("usuario", $ln['usuario'], $expire_time, "/");
                         setcookie("nome_usuario", $nome, $expire_time, "/");
-//                    setcookie("senha", $ln['senha']);
                         setcookie("tipo_acesso", $ln['tipo_acesso'], $expire_time, "/");
+
+                        date_default_timezone_set('America/Bahia');
+                        $datahoje = date('d/m/Y');
+                        $horalogin = date('H:i:s');
+						$ip = getenv("REMOTE_ADDR"); // pego IP
+						$host = gethostbyaddr("$ip"); //pego o host
+						
+						$sqlAcesso = "
+							INSERT INTO controleacesso (datalogin, horalogin, idusuario, nomelogin, end_ip, host)
+							VALUES ('$datahoje', '$horalogin', $proprietario, '$nome', '$ip', '$host')
+						";
+						mysql_query($sqlAcesso);
+						
                         echo "<meta http-equiv='refresh' content='0; URL=proprietarios.php'>
                             <script type=\"text/javascript\">
                             alert(\"Seja bem vindo Sr(a): $nome!\");

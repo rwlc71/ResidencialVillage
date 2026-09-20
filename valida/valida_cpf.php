@@ -141,6 +141,41 @@ function validarCNPJ($cnpj) {
     return true;
 }
 
+function validarCPF1($cpf) {
+	echo("Entrou na validação <br>");
+	echo($cpf);
+    // Remove caracteres não numéricos
+    $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+    // Verifica se tem 11 dígitos
+    if (strlen($cpf) !== 11) {
+		$false = "FALSO";
+        return $false;
+    }
+
+    // Elimina CPFs inválidos com todos os dígitos iguais
+    if (preg_match('/(\d)\1{10}/', $cpf)) {
+	    $false = "FALSO";
+        return $false;    }
+
+    // Valida 1º dígito verificador
+    for ($t = 9; $t < 11; $t++) {
+        $soma = 0;
+        for ($i = 0; $i < $t; $i++) {
+            $soma += $cpf[$i] * (($t + 1) - $i);
+        }
+
+        $digito = (10 * $soma) % 11;
+		if ($digito === 10) {
+			$digito = 0;
+		}
+        if ($cpf[$t] !== $digito) {
+	     $false = "FALSO";
+         return $false;        }
+    }
+	$true = "TRUE";
+    return $true;
+}
 
 
 ?>

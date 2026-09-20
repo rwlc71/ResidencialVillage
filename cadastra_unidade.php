@@ -68,7 +68,7 @@ $listaUnidade = false;
                 <tr>
                     <td width="6%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;Etapa:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="Etapa" name="Etapa" ><font size="20"; color="#000000">
+                        <select id="Etapa" name="Etapa" ><font size="2"; color="#000000">
                             <option  value="<?= $descEtapa ?>" selected="selected"><?= $descEtapa ?></option>
                             <option value="Azaléia - AZ">Azaléia - AZ</option>
                             <option value="Bougainville - BO">Bougainville - BO</option>
@@ -84,7 +84,7 @@ $listaUnidade = false;
                 <tr>
                     <td width="15%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;Tipo de unidade:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="tipo_unidade" name="tipo_unidade" ><font size="20"; color="#000000">
+                        <select id="tipo_unidade" name="tipo_unidade" ><font size="2"; color="#000000">
                             <option  value="" selected="selected"></option>
                             <option value="Residência">Residência</option>
                             <option value="Locação Regular (+90dias)">Locação Regular (+90dias)</option>

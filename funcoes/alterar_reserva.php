@@ -32,18 +32,40 @@ $dataComparaEntrada = DateTime::createFromFormat('d/m/Y', $dt_entrada);
 $dataComparaSaida = DateTime::createFromFormat('d/m/Y', $dt_saida);
 //echo('vai validar $botao: ' . $botao . ' <p>');
 
+// verificase já foi registrada a entrada
+$consulta = "SELECT aud.*, uni.*, prop.id_proprietario, prop.nome, prop.CPF 
+    FROM audita aud
+    JOIN proprietario prop ON aud.id_proprietario = prop.id_proprietario
+    JOIN unidade uni ON aud.id_unidade = uni.id_unidade
+    WHERE aud.id_audita = " . intval($id_locacao); // evita injeção
+
+$resultado = mysql_query($consulta);
+$ln = mysql_fetch_array($resultado);
+$dt_entrada_efetiva = $ln['dt_entrada_efetiva'];
+
+If ($dt_entrada_efetiva) {
+       echo "<meta http-equiv='refresh' content='0; '>
+        <script type=\"text/javascript\">
+        alert(\"Atenção: não é mais permitido fazer alterações na reserva - AUTORIZAÇÃO COM REGISTRO DE ENTRADA JÁ REALIZADO!   \");
+        history.back(); 
+      </script> ";
+    return die;
+}
+
 If ($dt_entrada === "") {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
-    <script type=\"text/javascript\">
+    echo "<meta http-equiv='refresh' content='0; '>
+     <script type=\"text/javascript\">
       alert(\"Campo DATA DE ENTRADA deve ser informada!  \");
+      history.back(); 
       </script> ";
     return die;
 }
 
 If ($dt_saida === "") {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
       <script type=\"text/javascript\">
       alert(\"Campo DATA DE SAÍDA deve ser informada!  \");
+      history.back(); 
       </script> ";
     return die;
 }
@@ -58,51 +80,75 @@ $dataHoje = date('Ymd');
 
 
 if ($dataHoje > $dtEntradaConvertida) {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
      <script type=\"text/javascript\">
       alert(\"Campo DATA DE ENTRADA deve ser maior que data hoje!  \");
+      history.back(); 
       </script> ";
     return die;
 }
 
 if ($dataHoje > $dtSaidaConvertida) {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
       <script type=\"text/javascript\">
       alert(\"Campo DATA DE SAIDA deve ser maior que data hoje!  \");
+      history.back(); 
       </script> ";
     return die;
 }
 
 if ($dataComparaEntrada > $dataComparaSaida) {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
       <script type=\"text/javascript\">
       alert(\"Campo DATA DE SAÍDA deve ser maior que DATA DE ENTRADA!  \");
+      history.back(); 
       </script>";
     return die;
 }
 
 
 If ($resp_loc == "") {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
+          <script type=\"text/javascript\">
+          alert(\"DEVE SER INFORMADO O NOME DO HÓSPEDE RESPONSÁVEL!  \");
+          history.back(); 
+          </script>  ";
+    return die;
+}
+
+If ($parentesco == "") {
+    echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
-                alert(\"DEVE SER INFORMADO O NOME DO HÓSPEDE RESPONSÁVEL!  \");
-                </script>  ";
+                alert(\"DEVE SER INFORMADO O TIPO DE VÍNCULO DO HÓSPEDE RESPONSÁVEL!  \");
+                history.back(); 
+		        </script>  ";
     return die;
 }
 
 if ($identificacao_resp_loc == "") {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
                 alert(\"A INSERÇÃO DO DOCUMENTO DE IDENTIFICAÇÃO DO HÓSPEDE RESPONSÁVEL É OBRIGATÓRIO(A)!  \");
+                history.back(); 
                 </script> ";
     return die;
 }
+$cpfValido = validarCPF($_POST['identificacao_resp_loc']);
 
+If (!$cpfValido) {
+    echo "<meta http-equiv='refresh' content='0; '>
+    <script type=\"text/javascript\">
+        alert(\"Número do CPF inválido. Informe um CPF válido!  \");
+        history.back(); 
+      </script> ";
+    return die;
+}
 If ($telefone == "") {
-    echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+    echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
                 alert(\"DEVE SER INFORMADO O TELEFONE DO HÓSPEDE RESPONSÁVEL!  \");
-                </script>";
+                history.back(); 
+               </script>";
     return die;
 }
 
@@ -125,7 +171,7 @@ if ($botao == "Salvar Alterações") {
 //        }
 
     $codvalidacao = gerarCodigo();
-    $codvalidacao = 'Al' . $codvalidacao . $id_locacao . '_N';
+    $codvalidacao = 'AlT' . $codvalidacao . $id_locacao;
     
         $sql1 = "UPDATE locacao SET qtde_hospedes = '" . $qtde_hosp . "',
                     dt_entrada = '" . $dt_entrada . "',
@@ -158,9 +204,11 @@ if ($botao == "Salvar Alterações") {
                     dt_saida = '" . $dt_saida . "',
                     chegada_prevista = '" . $hr_chegada . "',
                     resp_locacao = '" . $resp_loc . "',
+                    parentesco = '" . $parentesco . "',
                     contato_resp = '" . $telefone . "',
                     doc_identificacao_resp = '" . $identificacao_resp_loc . "',
                     complementares = '" . $complementares . "',
+                    codvalidacao = '" . $codvalidacao . "',
                     dt_ultima_alteracao = '" . $datacad . "',
                     autor = '" . $autor . "'
                     WHERE id_audita = '" . $id_locacao . "'";
@@ -169,9 +217,10 @@ if ($botao == "Salvar Alterações") {
             $result2 = mysql_query($sql3);
             if (!$result2) {
                 $erro = mysql_error();
-                echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+                echo "<meta http-equiv='refresh' content='0; '>
                     <script type=\"text/javascript\">
                     alert(\"Falha ao atualizar dados de Auditoria: $erro   \");
+                    history.back(); 
                     </script> ";
                 return die;
             } else {
@@ -179,8 +228,7 @@ if ($botao == "Salvar Alterações") {
                 echo "<meta http-equiv='refresh' content='0; URL= ../cadastra_reserva.php'>
                     <script type=\"text/javascript\">
                     alert(\"Atualização da Reserva realizada com sucesso!  \");
-                    </script>
-                ";
+                    </script>";
                 return die;
             }
         }

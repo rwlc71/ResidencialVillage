@@ -2,7 +2,16 @@
 <link rel="stylesheet" href="css/menu.css" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <!--<script type="text/javascript" src="js/componentes.js" charset=utf-8"/></script>-->
+<script languague="javascript">
+//  Abrir uma janela com as ações am andamento no condomínio;
+    let pathSegments = window.location.pathname.split("/");
+    let siteName = pathSegments[1]; // Pega a primeira parte após a barra
+    let urlComunicado = "/" + siteName + "/acoes.php";
 
+    let url = new URL(urlComunicado, window.location.origin);
+    //window.open(url.href, 'popup', 'width=700,height=500,scrollbars=yes');
+
+</script>
 
 <?php
 session_name('SESSAO_PHP');
@@ -12,6 +21,17 @@ include "valida/valida_cpf.php";
 include "valida/mascaraCPF.php";
 include "valida/mascaras.php";
 include "topo.php";
+
+//Ações em andamento no condomínio
+$acoes = [
+    "Reforma da área comum.",
+    "Manutenção dos elevadores.",
+    "Instalação de câmeras de segurança.",
+    "Pintura da fachada.",
+    "Limpeza geral das áreas externas."
+];
+$acoes_json = json_encode($acoes); // Passa as ações para o modal
+//===============================================
 
 $botao = '<input type="submit" name="botao" value="Atualizar dados cadastrais" />';
 $disabled = 'disabled';
@@ -62,6 +82,57 @@ $telefone = str_replace(".", "", $telefone);
 $telefone = str_replace("-", "", $telefone);
 $telefone = mask($telefone, '(##) #####-#####');
 ?>
+<!-- Modal de Comunicação -->
+<div id="comunicacao" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Ações em Andamento no Condomínio</h2>
+        <ul id="acoes-list">
+            <!-- As ações em andamento serão inseridas aqui dinamicamente -->
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    // Função para abrir o modal
+    function showModal(acoes) {
+        var modal = document.getElementById('comunicacao');
+        var acoesList = document.getElementById('acoes-list');
+        var acoesArray = JSON.parse(acoes);
+
+        // Limpa a lista antes de adicionar novos itens
+        acoesList.innerHTML = "";
+
+        // Preenche a lista de ações no modal
+        acoesArray.forEach(function(acao) {
+            var li = document.createElement('li');
+            li.textContent = acao;
+            acoesList.appendChild(li);
+        });
+
+        // Exibe o modal
+        modal.style.display = "block";
+    }
+
+    // Função para fechar o modal
+    function closeModal() {
+        var modal = document.getElementById('comunicacao');
+        modal.style.display = "none";
+    }
+
+    // Fecha o modal se o usuário clicar fora dele
+    window.onclick = function(event) {
+        var modal = document.getElementById('comunicacao');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Chama a função showModal ao carregar a página
+    window.onload = function() {
+        showModal(<?php echo $acoes_json; ?>); // Passa as ações do PHP para o JavaScript
+    };
+</script>
+
 <div id="conteudo">
     <div id="cont">
         <h2>Dados cadastrais</h2>

@@ -44,7 +44,7 @@ $totalHospedes = 0;
 <div id="conteudo">
     <div id="cont">
         <body>
-            <h2>Relatório Gerencial - Dependentes / Filiados</h2> <br>
+            <h2>Relatório Gerencial - Dependentes / Associados</h2> <br>
             <hr />
             <form method="post" action="consulta_dependentes.php">
                 <br>
@@ -75,11 +75,11 @@ $totalHospedes = 0;
             <hr/>          
             <br>
             <div class="estiloTabelas table-responsive">
-                <h3>Relação de Dependentes Cadastrados</center></h3>
+                <h3>Relação de Dependentes / Associados Cadastrados</center></h3>
                 <table width="80%" border="2">
                     <tr>
                         <td width="20%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Proprietário</b></td>
-                        <td width="20%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Nome do dependente</b></td>
+                        <td width="20%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Nome do dependente / Associado</b></td>
                         <td width="13%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Identificação</b></td>
                         <td width="16%" align="center" bgcolor="#191970"><font size="2"; color="#F5FFFA"><b> Grau de parentesco / vínculo:</b></td>
                         <td width="1%" align="center" bgcolor="#191970" colspan="1"><font size="2"; color="#F5FFFA"><b> Foto</b></td>

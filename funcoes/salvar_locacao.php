@@ -104,14 +104,25 @@ if ($_POST['identificacao_resp_loc'] == "") {
                 </script> ";
     return die;
 }
-//If ($_POST['parentesco'] == "") {
-//    echo "<meta http-equiv='refresh' content='0; '>
-//      <script type=\"text/javascript\">
-//      alert(\"Campo PARENTESCO deve ser informado!  \");
-//      history.back(); 
-//      </script> ";
-//    return die;
-//}
+$cpfValido = validarCPF($_POST['identificacao_resp_loc']);
+
+If (!$cpfValido) {
+    echo "<meta http-equiv='refresh' content='0; '>
+    <script type=\"text/javascript\">
+        alert(\"Número do CPF inválido. Informe um CPF válido!  \");
+        history.back(); 
+      </script> ";
+    return die;
+}
+
+If ($_POST['parentesco'] == "") {
+    echo "<meta http-equiv='refresh' content='0; '>
+      <script type=\"text/javascript\">
+      alert(\"Campo VÍNCULO deve ser informado!  \");
+      history.back(); 
+      </script> ";
+    return die;
+}
 If ($_POST['telefone'] == "") {
     echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
@@ -214,9 +225,9 @@ if ($_POST['botao'] == "Cadastrar locação") {
             $branco = '';
             $null = null;
             $sql3 = "INSERT INTO audita (id_audita, id_proprietario, id_unidade, qtde_hospedes, dt_entrada, dt_saida, chegada_prevista,
-            autorizacao_hospedagem, resp_locacao, contato_resp, doc_identificacao_resp, excluido_usuario, complementares, codvalidacao, dt_ultima_alteracao, autor )
+            autorizacao_hospedagem, resp_locacao, parentesco, contato_resp, doc_identificacao_resp, excluido_usuario, complementares, codvalidacao, dt_ultima_alteracao, autor )
             VALUES ('" . $id_audit . "','" . $id_proprietario . "','" . $_POST['id_unidade'] . "','" . $_POST['qtde_hosp'] . "','"
-                    . $dt_entrada . "','" . $dt_saida . "','" . $_POST['hr_chegada'] . "','" . $comprovante . "','" . $_POST['resp_loc'] . "','"
+                    . $dt_entrada . "','" . $dt_saida . "','" . $_POST['hr_chegada'] . "','" . $comprovante . "','" . $_POST['resp_loc'] . "','" . $_POST['parentesco'] . "','"
                     . $_POST['telefone'] . "','" . $_POST['identificacao_resp_loc'] . "','" . $var . "','" . $_POST['complementares'] . "','" . $codvalidacao . "','" . $dataHoje . "','" . $autor . "')";
 //        echo($sql2.'<p>');
 //        echo($sql3);
@@ -239,7 +250,7 @@ if ($_POST['botao'] == "Cadastrar locação") {
                 }
                 echo "<meta http-equiv='refresh' content='0; URL= ../cadastra_reserva.php'>
                     <script type=\"text/javascript\">
-                    alert(\"Locação cadastrada com sucesso!  \");
+                    alert(\"Reserva cadastrada com sucesso!  \");
                     </script>
                     ";
                 return die;
@@ -275,10 +286,11 @@ function verificaRangeDataUnidade($id_unidade, $dt_entrada, $dt_saida) {
 //        OR (dt_entrada < '$dt_entrada' AND dt_saida > '$dt_saida')))";
 
     $sql_locacao = "SELECT COUNT(*) as total FROM locacao WHERE (id_unidade = '$id_unidade' and dt_entrada <= '$dt_saida' AND dt_saida > '$dt_entrada')";
-//    echo($sql_locacao);
-//    exit();
+    //echo($sql_locacao);
+    //exit();
     $sql_locacao = mysql_query($sql_locacao);
     $resultado = (mysql_fetch_assoc($sql_locacao));
+    $total = $resultado;
     if ($resultado['total'] == 0) {
 //        echo("Não encontrou reservas no mesmo periodo");
         return true;

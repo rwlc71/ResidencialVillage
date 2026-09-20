@@ -119,12 +119,28 @@ if (mysql_num_rows($consulta) != true) {
     return die;
 }
 
-$tamanho = strlen($ln['CPF']);
-if ($tamanho > 11) {
-    $cpf = mask($ln['CPF'], '##.###.###/####-##');
-} else {
-    $cpf = mask($ln['CPF'], '###.###.###-##');
+$cpf = $ln['CPF'];
+$valorLimpo = preg_replace('/\D/', '', $cpf);
+$tamanho = strlen($valorLimpo);
+if ($tamanho === 11) {       // CPF
+    $cpf = mask($valorLimpo, '###.###.###-##');
+} elseif ($tamanho === 14) {      // CNPJ
+    $cpf = mask($valorLimpo, '##.###.###/####-##');
+} else {     // Não é CPF nem CNPJ válido → sem formatação
+    $cpf = $valorLimpo;
 }
+
+$doc_identificacao_resp = trim($ln['doc_identificacao_resp']);
+$valorLimpo1 = preg_replace('/\D/', '', $doc_identificacao_resp);
+$tamanho1 = strlen($valorLimpo1);
+if ($tamanho1 === 11) {       // CPF
+    $doc_identificacao_resp = mask($valorLimpo1, '###.###.###-##');
+} elseif ($tamanho1 === 14) {      // CNPJ
+    $doc_identificacao_resp = mask($valorLimpo1, '##.###.###/####-##');
+} else {     // Não é CPF nem CNPJ válido → sem formatação
+    $doc_identificacao_resp = $valorLimpo1;
+}
+
 $listalocacao = false;
 
 $dt_entrada = DateTime::createFromFormat('Y-m-d', $ln['dt_entrada'])->format('d/m/Y');
@@ -164,8 +180,7 @@ switch ($ln['etapa']) {
 
     <div id="cont">
         <h2>Alterações de Reservas</h2>
-
-        <hr>
+        <br><hr>
         <form method="post" action="funcoes/alterar_reserva.php"  enctype="multipart/form-data">
 
             <table width="75%" border="0">
@@ -209,14 +224,21 @@ switch ($ln['etapa']) {
                 </tr>
                 <tr>
                     <th width="30%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Responsável pela locação:</th>
-                    <th width="25%" align="left" scope="col"><input type="text" value="<?= $ln['resp_locacao'] ?>" name="resp_loc" size="60"  maxlength="23" /></th>
+                    <th width="25%" align="left" scope="col"><input type="text" value="<?= $ln['resp_locacao'] ?>" name="resp_loc" size="60"  maxlength="60" /></th>
                 </tr>
                 <tr>
-                    <th align="left" bgcolor="#ffffff"><font size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identificação:</font></th>
+                    <th align="left" bgcolor="#ffffff"><font size="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CPF do Responsável::</font></th>
                     <td>
-                        <input type="text" value="<?= $ln['doc_identificacao_resp'] ?>"  name="identificacao_resp_loc" size="20" maxlength="20"/>
-                        <font size="2"><b>Parentesco: </b></font>
-                        <input type="text" value="<?= $ln['parentesco'] ?>" id="parentesco" name="parentesco" size="10" maxlength="10" placeholder="Exemplo: filho, pai, primo.."/>
+                        <input type="text" value="<?= $doc_identificacao_resp ?>" name="identificacao_resp_loc" size="20" maxlength="20"
+                               oninput="this.value = this.value.replace(/\D/g, '')"  placeholder="Somente números"/>
+
+                        <font size="2"><b>Vínculo: </b></font>
+                        <select id="parentesco" name="parentesco">
+                            <option value="">Selecione...</option>
+                            <option value = "Parente até 4º Grau">Parente até 4º Grau</option>
+                            <option value = "Convidado">Convidado</option>
+                            <option value = "Locação por Temporada">Locação por Temporada</option>
+                        </select>
                     </td>
                 </tr>
                 <tr>
@@ -301,8 +323,8 @@ switch ($ln['etapa']) {
             <br>
             <p></p>
             <center>
-                <!--<input type="button" value="Voltar" onClick="JavaScript: window.history.back();">-->
                 <input type="submit" id="salvar" name="botao" value="Salvar Alterações" />
+                <input type="button" value="Voltar" onClick="JavaScript: window.history.back();">
 
             </center>    
         </form>

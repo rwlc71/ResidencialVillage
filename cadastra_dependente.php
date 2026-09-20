@@ -32,19 +32,23 @@ $sql = "SELECT * FROM proprietario WHERE CPF = '$cpf' ";
 $sql = mysql_query($sql);
 $ln = mysql_fetch_array($sql);
 
-$tamanho = strlen($cpf);
-if ($tamanho > 11) {
-    $cpf = mask($cpf, '##.###.###/####-##');
+$valorLimpo = preg_replace('/\D/', '', $cpf);
+$tamanho = strlen($valorLimpo);
+if ($tamanho === 11) {       // CPF
+    $cpf = mask($valorLimpo, '###.###.###-##');
     $select = '<option  value="" selected="selected"></option>'
-            . '<option value="Filiado, sócio ou membro">Filiado, sócio ou membro</option>';
-} else {
-    $cpf = mask($cpf, '###.###.###-##');
+            . '<option value="Parente até 4º Grau">Parente até 4º Grau</option>';
+//            . '<option value="Associado">Associado</option>';
+} elseif ($tamanho === 14) {      // CNPJ
+    $cpf = mask($valorLimpo, '##.###.###/####-##');
     $select = '<option  value="" selected="selected"></option>'
-            . '<option value="Esposa / Marido">Esposa / Marido</option>'
-            . '<option value="1º Grau">1º Grau</option>'
-            . '<option value="2º Grau">2º Grau</option>'
-            . '<option value="3º Grau">3º Grau</option>'
-            . '<option value="4º Grau">4º Grau</option>';
+            . '<option value="Parente até 4º Grau">Parente até 4º Grau</option>'
+            . '<option value="Associado">Associado</option>';
+} else {     // Não é CPF nem CNPJ válido → sem formatação
+    $cpf = $valorLimpo;
+    $select = '<option  value="" selected="selected"></option>'
+            . '<option value="Parente até 4º Grau">Parente até 4º Grau</option>'
+            . '<option value="Associado">Associado</option>';
 }
 
 
@@ -55,7 +59,7 @@ $listaDependente = false;
 <div id="conteudo">
 
     <div id="cont">
-        <h2>Cadastro de Dependente(s) / Filiado(s)</h2>
+        <h2>Cadastro de Dependente(s) / Associado(s)</h2>
         <hr>
         <form method="post" action="funcoes/salvar_dependente.php" enctype="multipart/form-data">
 
@@ -72,18 +76,18 @@ $listaDependente = false;
                     </th>
                 </tr>-->
                 <tr>
-                    <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Proprietário:</th>
+                    <th width="10%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;Proprietário:</th>
                     <th width="25%" align="left" scope="col"><input type="text" value="<?= strtoupper($ln['nome']) ?>" name="nome" size="60" disabled/></th>
                 </tr>
                 <tr>
-                    <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nome do dependente:</th>
+                    <th width="10%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;Nome do dependente / Associado:</th>
                     <th width="25%" align="left" scope="col"><input type="text" value="" name="nome_dependente" size="60"    /></th>
                 </tr>
 
                 <tr>
-                    <td width="6%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Grau de parentesco/vínculo:</b> </td>
+                    <td width="10%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;Grau de parentesco /vínculo:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="Etapa" name="Parentesco" ><font size="20"; color="#000000">
+                        <select id="Etapa" name="Parentesco" ><font size="2"; color="#000000">
                             <?= $select ?>
                             <!--                            <option  value="" selected="selected"></option>
                             <option value="Esposa / Marido">Esposa / Marido</option>
@@ -96,12 +100,12 @@ $listaDependente = false;
                     </th>        
                 </tr> 
                 <tr>
-                    <th width="7%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Documento de identificação:</th>
+                    <th width="10%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;Documento de identificação:</th>
                     <th width="25%" align="left" scope="col"><input type="text" value="" name="id_dependente" size="30"    /></th>
                 </tr>
                 <tr>
                 <p></p>
-                <td align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserir Foto:</b> </td>
+                <td align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;Inserir Foto:</b> </td>
                 <td align="left"><input type="file" name="foto_dependente"  /> </td>
                 </tr>
 

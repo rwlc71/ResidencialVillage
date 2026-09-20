@@ -25,6 +25,32 @@ for ($i = 0; $i < $totalHospedes; $i++) {
 }
 
 $id_locacao = $_POST['id_locacao'];
+
+//============================
+// verifica data de incio da locação
+$consulta = "SELECT loc.*, uni.*, prop.id_proprietario, prop.nome, prop.CPF 
+    FROM locacao loc
+    JOIN proprietario prop ON loc.id_proprietario = prop.id_proprietario
+    JOIN unidade uni ON loc.id_unidade = uni.id_unidade
+    WHERE loc.id_locacao = " . intval($id_locacao); // segurança mínima com intval
+
+$resultado = mysql_query($consulta);
+$ln = mysql_fetch_array($resultado);
+$dataHoje = date('Y-m-d');
+$entrada = $ln['dt_entrada'];
+$dt_entrada_efetiva = $ln['dt_entrada_efetiva'];
+
+If ($dt_entrada_efetiva) {
+    echo json_encode(['status' => 'error', 'message' => 'Atenção: não é mais permitido fazer alterações na reserva - AUTORIZAÇÃO COM REGISTRO DE ENTRADA JÁ REALIZADO!']);
+    return;
+}
+
+If ($dataHoje > $entrada) {
+    echo json_encode(['status' => 'error', 'message' => 'Atenção: não é mais permitido fazer alterações na reserva - AUTORIZAÇÃO VIGENTE!']);
+    return;
+}
+
+//============================
 for ($i = 0; $i < count($_POST['hospedes']['nome']); $i++) {
     if (trim($_POST['hospedes']['parentesco'][$i]) === '') {
         $branco = true;
@@ -139,7 +165,11 @@ if ($gravou == true) {
 
     $sql2 = "UPDATE locacao SET codvalidacao = '" . $codvalidacao . "' WHERE id_locacao = '" . $id_locacao . "'";
     $result = mysql_query($sql2);
-    if ($result) {
+	
+	$sql3 = "UPDATE audita SET codvalidacao = '" . $codvalidacao . "' WHERE id_audita = '" . $id_locacao . "'";
+    $result3 = mysql_query($sql3);
+	
+    if (($result) && ($result3)) {
         echo json_encode(['id' => $id_locacao, 'status' => 'success', 'message' => 'Hóspedes salvos com sucesso!']);
         return;
     } else {

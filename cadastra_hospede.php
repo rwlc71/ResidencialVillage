@@ -193,30 +193,28 @@ switch ($ln['etapa']) {
 
 
         <script>
-            function adicionarHospede() {
-                // Pega a referência da tabela onde os campos serão adicionados
-                var tabela = document.getElementById("tabelaHospedes");
-
-                // Cria uma nova linha na tabela
-                var linha = tabela.insertRow(-1);
-
-                // Cria a primeira célula (Nome do hóspede)
-                var cell1 = linha.insertCell(0);
-                cell1.innerHTML = '<input type="text" name="hospedes[nome][]" placeholder="Nome do hóspede" size="30" maxlength="23" required>';
-
-                // Cria a segunda célula (CPF do hóspede)
-                var cell2 = linha.insertCell(1);
-                cell2.innerHTML = '<input type="text" name="hospedes[identificacao][]" placeholder="Identificação" size="20" maxlength="15" required>';
-
-                var cell3 = linha.insertCell(2);
-                cell3.innerHTML = '<input type="text" name="hospedes[parentesco][]" placeholder="Vínculo" size="20" maxlength="13" required>';
-
-                var cell4 = linha.insertCell(3);
-
-                cell4.innerHTML = '<center><a href="javascript:void(0);" onclick="desvincularHospedee(<?= $ln['id_hospede'] ?>);" title="Excluir hóspede">' +
-                        ' <img src="images/lixeira.jpg" height="20" width="20" align="middle" border="0"> </a></center>';
-
-            }
+                    function adicionarHospede() {
+                    // Pega a referência da tabela onde os campos serão adicionados
+                    var tabela = document.getElementById("tabelaHospedes");
+                            // Cria uma nova linha na tabela
+                            var linha = tabela.insertRow( - 1);
+                            // Cria a primeira célula (Nome do hóspede)
+                            var cell1 = linha.insertCell(0);
+                            cell1.innerHTML = '<input type="text" name="hospedes[nome][]" placeholder="Nome do hóspede" size="30" maxlength="23" required>';
+                            // Cria a segunda célula (CPF do hóspede)
+                            var cell2 = linha.insertCell(1);
+                            cell2.innerHTML = '<input type="text" name="hospedes[identificacao][]" placeholder="Identificação" size="20" maxlength="15" required>';
+                            var cell3 = linha.insertCell(2);
+                            cell3.innerHTML = '<select name = "hospedes[parentesco][]" required >'
+                            + '<option value = "">Selecione... </option>'
+                            + '<option value = "Parente até 4º Grau">Parente até 4º Grau</option>'
+                            + '<option value = "Convidado">Convidado</option>'
+                            + '<option value = "Locação por Temporada">Locação por Temporada</option>'
+                            + '</select> ';
+							var cell4 = linha.insertCell(3);
+                            cell4.innerHTML = '<center><a href="javascript:void(0);" onclick="desvincularHospedee(<?= $ln['id_hospede'] ?>);" title="Excluir hóspede">' +
+                            ' <img src="images/lixeira.jpg" height="20" width="20" align="middle" border="0"> </a></center>';
+                    }
 
             function salvarHospedes() {
                 var form = document.getElementById("formHospedes");

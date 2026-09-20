@@ -1,0 +1,262 @@
+/* Comparação de cadastros */
+.cmp-wrap {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #1a1a1a;
+}
+
+.cmp-wrap h2 {
+    margin: 0 0 6px 0;
+    color: #191970;
+}
+
+.cmp-sub {
+    color: #555;
+    margin: 0 0 16px 0;
+}
+
+.cmp-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+}
+
+.cmp-upload {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.cmp-upload input[type="file"] {
+    font-size: 13px;
+}
+
+.cmp-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.cmp-card {
+    flex: 1 1 120px;
+    min-width: 120px;
+    border-radius: 6px;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.cmp-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.cmp-card strong {
+    display: block;
+    font-size: 22px;
+    line-height: 1.2;
+    color: #191970;
+}
+
+.cmp-card span {
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.cmp-card.ativo {
+    border-color: #191970;
+    background: #eef0ff;
+}
+
+.cmp-card.divergente strong { color: #b00020; }
+.cmp-card.conforme strong { color: #1b7a3a; }
+.cmp-card.so_arquivo strong { color: #9a6b00; }
+.cmp-card.so_sistema strong { color: #555; }
+.cmp-card.sem_cpf strong { color: #0b6e99; }
+.cmp-card.cpf_repetido strong { color: #7b2d8e; }
+.cmp-card.origem_proprietario strong { color: #191970; }
+.cmp-card.origem_dependente strong { color: #0b6e99; }
+
+.cmp-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.cmp-toolbar input[type="text"] {
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    min-width: 240px;
+}
+
+.cmp-legend {
+    font-size: 12px;
+    color: #555;
+    margin: 0 0 10px 0;
+}
+
+.cmp-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.cmp-badge.conforme,
+.cmp-badge.igual { background: #1b7a3a; }
+.cmp-badge.divergente { background: #b00020; }
+.cmp-badge.so_arquivo { background: #c47b00; }
+.cmp-badge.so_sistema { background: #6c757d; }
+.cmp-badge.sem_cpf { background: #0b6e99; }
+.cmp-badge.nao_informado { background: #9aa0a6; }
+.cmp-badge.cpf_repetido { background: #7b2d8e; }
+.cmp-badge.sem_unidade { background: #b35c00; }
+.cmp-badge.origem-proprietario { background: #191970; }
+.cmp-badge.origem-dependente { background: #0b6e99; }
+.cmp-badge.origem-ambos { background: #7b2d8e; }
+.cmp-badge.origem-nao { background: #9aa0a6; }
+
+.cmp-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 900px;
+}
+
+.cmp-table th {
+    background: #191970;
+    color: #F5FFFA;
+    padding: 8px 6px;
+    text-align: left;
+    font-size: 12px;
+}
+
+.cmp-table td {
+    padding: 7px 6px;
+    border-bottom: 1px solid #e4e4e4;
+    vertical-align: top;
+}
+
+.cmp-table tbody tr.cmp-row:nth-child(even) {
+    background: #f7f7fb;
+}
+
+.cmp-table tbody tr.cmp-row:hover {
+    background: #fff6d6;
+}
+
+.cmp-table tbody tr.cmp-row.divergente {
+    background: #fdecec;
+}
+
+.cmp-table tbody tr.cmp-row.sem-unidade {
+    background: #fff3e8;
+}
+
+.cmp-detalhe {
+    display: none;
+    background: #fbfbfb;
+}
+
+.cmp-detalhe.aberto {
+    display: table-row;
+}
+
+.cmp-detalhe td {
+    padding: 0 8px 12px 8px;
+}
+
+.cmp-campos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+}
+
+.cmp-campos th,
+.cmp-campos td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+.cmp-campos th {
+    background: #e9eaf6;
+    color: #191970;
+}
+
+.cmp-campos td.divergente {
+    background: #f8d7da;
+}
+
+.cmp-campos td.igual {
+    background: #d4edda;
+}
+
+.cmp-campos td.so_arquivo {
+    background: #fff3cd;
+}
+
+.cmp-paginacao {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.cmp-paginacao a,
+.cmp-paginacao span {
+    display: inline-block;
+    margin: 0 3px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #191970;
+}
+
+.cmp-paginacao span {
+    background: #191970;
+    color: #fff;
+    border-color: #191970;
+}
+
+.cmp-obs {
+    background: #fff8e5;
+    border: 1px solid #f0d48a;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.cmp-btn-link {
+    background: none;
+    border: none;
+    color: #191970;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: 12px;
+    box-shadow: none;
+}
+
+.cmp-btn-link:hover {
+    transform: none;
+    background: none;
+}

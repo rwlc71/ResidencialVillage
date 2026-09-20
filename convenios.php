@@ -194,12 +194,40 @@
                                 </center>
                                 </td>
                                 </tr>
+<!-- =================================================================== -->
+                                <tr>
+                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
+                                        <a href="images/parceiros/restaurar.jpeg" target="_blank">
+                                            <img src="images/parceiros/restaurar.jpeg" height=200 width=200 align='middle' border="0"
+                                                 onmouseover="showModal()" onmouseout="hideModal()">
+                                        </a>
+                                    </td>    
+                                    <td align="center">
+                                        <font size="3" color="#000000">
+                                <center>
+                                    <b><h2>RESTAURAÇÕES !!</h2></b>
+                                    <ul><h3> <li>Residencial Village - Etapa Orquideas casa 47</li></h3><hr>
+                                        <li></li>  
+                                        <dt><dd><li align='left'>Restaurações de peças ornamentais!</li> </dd></dt> 
+                                        <dt><dd><li align='left'>Venda de peças ornamentais em gesso e cimento.</li> </dd></dt> 
+                                        <dt><dd><li align='left'>Sou psicopedagoga e faço acompanhamento escolar e terapia para a terceira idade</li> </dd></dt> 
+                                        
+										<p><dt><dd><li align='left'><b> Contate-nos pelo WhatsApp:(64)99200-1932</b>
+                                            <a href="https://api.whatsapp.com/send?phone=5564992001932" target="_blank"> 
+                                                <img src="images/parceiros/whatsapp.png" align='middle' height=20 width=20 align='middle' border="0" title="Clique aqui e encomende sua pizza!">
+                                            </a>
+                                        </li></dd></dt> 
+                                    </ul>
+                                </center>
+                                </td>
+                                </tr>
+								
 
                                 <tr>
                                     <td align="center" valign="middle" bgcolor="#E9E9E9">
                                         <a href="images/parceiros/empadas.jpeg" target="_blank">
                                             <img src="images/parceiros/empadas.jpeg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal2')" onmouseout="hideModal('modal2')">
+                                                 onmouseover="showModal()" onmouseout="hideModal()">
                                         </a>
                                     </td>    
                                     <td align="center">

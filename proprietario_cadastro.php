@@ -348,7 +348,7 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
                 <tr>
                     <td width="6%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Perfil de acesso:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="perfil" name="perfil" ><font size="20"; color="#000000">
+                        <select id="perfil" name="perfil" ><font size="2"; color="#000000">
                             <option  value="<?= $tipoacesso ?>" selected="selected"><?= $tipoacesso ?></option>
                             <option value="adm">Administrativo</option>
                             <option value="con">Proprietário</option>

@@ -83,7 +83,7 @@
 session_name('SESSAO_PHP');
 include "conexao.php";
 include "valida/verifica_autenticacao.php";
-include "valida/verifica_acesso.php";
+include "valida/verifica_acessoAdm.php";
 include "valida/valida_cpf.php";
 include "valida/mascaraCPF.php";
 include "valida/mascaras.php";

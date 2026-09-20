@@ -1,0 +1,47 @@
+/* Ajusta as imagens para dispositivos móveis */
+.img-acesso {
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Para telas pequenas */
+@media screen and (max-width: 768px) {
+    #conteudo {
+        padding: 10px;
+    }
+
+    #cont {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .img-acesso {
+        width: 100px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+
+    ul {
+        padding-left: 20px;
+    }
+}
+
+/* Para telas maiores */
+@media screen and (min-width: 768px) {
+    #conteudo {
+        padding: 20px;
+    }
+
+    #cont {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    ul {
+        padding-left: 40px;
+    }
+}
