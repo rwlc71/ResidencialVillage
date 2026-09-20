@@ -39,6 +39,7 @@ $cep = '';
 $telefone = '';
 $tipoacesso = '';
 $nome = '';
+$cor_input = '';
 $ln['endereco'] = '';
 $ln['cidade'] = '';
 $ln['estado'] = '';
@@ -160,10 +161,14 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
     }
 } else {
     if ($_REQUEST['botao'] == 'Consultar') {
-        if (trim($_REQUEST['nome']) === '') {
+        $nomeConsulta = isset($_REQUEST['nome']) ? trim($_REQUEST['nome']) : '';
+        $cpfConsulta = isset($_REQUEST['cpf']) ? trim($_REQUEST['cpf']) : '';
+        $cpfDigits = preg_replace('/[^0-9]/', '', $cpfConsulta);
+
+        if ($nomeConsulta === '' && $cpfDigits === '') {
             echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
-                alert(\"Insira o nome do usuário para consulta!  \");
+                alert(\"Informe o nome ou o CPF/CNPJ para consultar.\");
                 history.back(); 
                 </script> ";
             return die;
@@ -174,20 +179,38 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
           <input type="submit" name="botao" value="Incluir dados de proprietário" />' ;
         $cor_input = "background-color: #F5F5F5	;";
 
-// Carrega dados do proprietario listado 
-        $nome = $_POST['nome'];
-        $sql = "SELECT * FROM proprietario WHERE nome = '$nome'";
+        $cpfNormSql = "REPLACE(REPLACE(REPLACE(REPLACE(CPF,'.',''),'-',''),'/',''),' ','')";
+        if ($cpfDigits !== '') {
+            $cpfEsc = mysql_real_escape_string($cpfDigits);
+            if (strlen($cpfDigits) === 11 || strlen($cpfDigits) === 14) {
+                $sql = "SELECT * FROM proprietario WHERE " . $cpfNormSql . " = '" . $cpfEsc . "'";
+            } else {
+                $sql = "SELECT * FROM proprietario WHERE " . $cpfNormSql . " LIKE '%" . $cpfEsc . "%'";
+            }
+        } else {
+            $nomeEsc = mysql_real_escape_string($nomeConsulta);
+            $sql = "SELECT * FROM proprietario WHERE nome = '" . $nomeEsc . "'";
+        }
+
         $sql = mysql_query($sql);
-        $ln = mysql_fetch_array($sql);
-        $num_rows = mysql_num_rows($sql);
-        if ($num_rows == 0) {
+        $ln = $sql ? mysql_fetch_array($sql) : false;
+        $num_rows = $sql ? mysql_num_rows($sql) : 0;
+        if ($num_rows == 0 || !$ln) {
+            if ($cpfDigits !== '' && $nomeConsulta === '') {
+                $msgConsulta = 'Nenhum usuário encontrado para o CPF/CNPJ informado.';
+            } elseif ($cpfDigits === '' && $nomeConsulta !== '') {
+                $msgConsulta = 'Nenhum usuário encontrado para o nome informado.';
+            } else {
+                $msgConsulta = 'Nenhum usuário encontrado para o nome ou CPF/CNPJ informado.';
+            }
             echo "<meta http-equiv='refresh' content='0; '>
                 <script type=\"text/javascript\">
-                alert(\"Usuário não cadastrado!  \");
+                alert(\"" . $msgConsulta . "\");
                 history.back(); 
                 </script> ";
             return die;
         }
+        $nome = $ln['nome'];
         $cpfret = trim($ln['CPF']);
         $cpfret = str_replace(".", "", $cpfret);
         $cpfret = str_replace("-", "", $cpfret);
@@ -305,7 +328,7 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
                 <tr>
                     <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CPF/CNPJ:</th>
                     <th width="25%" align="left" scope="col">
-                        <input name="cpf" id="cpf" type="text"  onkeypress="aplicarMascaraCpfCnpj(cpf)" value="<?= $cpfret ?>" size="18" maxlength="18" style="<?= $cor_input ?>" <?= $readonly ?> >
+                        <input name="cpf" id="txtCPF" type="text" class="input_forms" onkeypress="aplicarMascaraCpfCnpj(this)" value="<?= $cpfret ?>" size="18" maxlength="18" style="<?= $cor_input ?>" <?= $readonly ?> >
 
                     </th>
                 </tr>
@@ -362,7 +385,7 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
             <p></p>
             <center>
                 <?= $botões ?>
-                <button onclick="window.location.href='proprietario_cadastro.php'">Limpar dados</button>
+                <input type="button" value="Limpar dados" onclick="limparDadosCadastro();" />
 
 <!--                <input type="submit" name="botao" value="Consultar" />
                 <input type="submit" name="botao" value="Incluir dados de proprietário" />-->
@@ -371,9 +394,8 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
         <?php ?>
         <br />
 <script>
-         // Função para recarregar a página
-        function refreshPage() {
-            window.location.reload(true); // Recarrega a página ignorando o cache
+        function limparDadosCadastro() {
+            window.location.replace('proprietario_cadastro.php');
         }
 </script>        
         <script>

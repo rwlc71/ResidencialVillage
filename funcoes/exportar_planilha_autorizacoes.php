@@ -22,11 +22,17 @@ require_once dirname(__FILE__) . '/../Libs/Classes/PHPExcel/IOFactory.php';
 $valorBaixa = pf_parse_money(isset($_POST['valor_baixa']) ? $_POST['valor_baixa'] : '100', 100.0);
 $valorAlta = pf_parse_money(isset($_POST['valor_alta']) ? $_POST['valor_alta'] : '150', 150.0);
 $mapa = pf_montar_mapa_temporada($_POST);
+$feriadosPack = pf_montar_feriados_post($_POST);
+$feriados = $feriadosPack['lista'];
+if (empty($feriados)) {
+    $feriadosPack = pf_feriados_nacionais_ano();
+    $feriados = $feriadosPack['lista'];
+}
 $dtIni = pf_parse_br_date(isset($_POST['dt_emissao_ini']) ? $_POST['dt_emissao_ini'] : '');
 $dtFim = pf_parse_br_date(isset($_POST['dt_emissao_fim']) ? $_POST['dt_emissao_fim'] : '');
 
 $registros = pf_buscar_autorizacoes($dtIni, $dtFim);
-$proc = pf_processar_linhas($registros, $valorAlta, $valorBaixa, $mapa);
+$proc = pf_processar_linhas($registros, $valorAlta, $valorBaixa, $mapa, $feriados);
 $linhas = $proc['linhas'];
 $totais = $proc['totais'];
 
@@ -141,6 +147,35 @@ foreach ($mapa as $ym => $tipo) {
     $row++;
 }
 
+$ferHeader = $row + 1;
+$s1->setCellValue('A' . $ferHeader, 'Data');
+$s1->setCellValue('B' . $ferHeader, 'Feriado nacional');
+$s1->setCellValue('C' . $ferHeader, 'Emenda');
+$s1->setCellValue('D' . $ferHeader, 'Alta / período da ponte');
+$s1->getStyle('A' . $ferHeader . ':D' . $ferHeader)->applyFromArray(array_merge(
+    pf_xls_font(11, true, $C_BLACK, $FONT),
+    pf_xls_fill($C_SUB)
+));
+
+$row = $ferHeader + 1;
+foreach ($feriados as $f) {
+    $periodo = pf_format_iso_br($f['alta_ini']);
+    if ($f['alta_ini'] !== $f['alta_fim']) {
+        $periodo .= ' a ' . pf_format_iso_br($f['alta_fim']);
+    }
+    $altaTxt = !empty($f['alta']) ? ('Alta (' . $periodo . ')') : 'Não';
+    $s1->setCellValue('A' . $row, pf_format_iso_br($f['data']));
+    $s1->setCellValue('B' . $row, $f['nome']);
+    $s1->setCellValue('C' . $row, !empty($f['emendado']) ? 'Sim' : 'Não');
+    $s1->setCellValue('D' . $row, $altaTxt);
+    $s1->getStyle('A' . $row . ':C' . $row)->applyFromArray(pf_xls_font(11, false, $C_BLACK, $FONT));
+    $s1->getStyle('D' . $row)->applyFromArray(array_merge(
+        pf_xls_font(11, false, $C_EDIT_FG, $FONT),
+        pf_xls_fill($C_EDIT_BG)
+    ));
+    $row++;
+}
+
 $obsRow = $row + 2;
 $s1->mergeCells('A' . $obsRow . ':D' . $obsRow);
 $s1->setCellValue('A' . $obsRow, 'OBSERVAÇÕES');
@@ -153,7 +188,8 @@ $obs = array(
     'A cobrança é calculada por autorização emitida, e não por quantidade de hóspedes.',
     'Critério de seleção do período: data de emissão da autorização.',
     "As linhas canceladas permanecem com 'Cobrar? = Sim' por padrão, em coerência com o critério de emissão.",
-    'A temporada é classificada pelo mês da DATA DE ENTRADA. As classificações mensais de alta/baixa temporada são premissas editáveis.'
+    'A temporada é classificada pelo mês da DATA DE ENTRADA. Janeiro, fevereiro, julho e dezembro são alta por padrão.',
+    'Feriados nacionais emendados com o fim de semana também são alta temporada quando a data de entrada cai no período da ponte.'
 );
 $o = $obsRow + 1;
 foreach ($obs as $i => $txt) {
@@ -170,7 +206,7 @@ foreach ($obs as $i => $txt) {
 $s1->getColumnDimension('A')->setWidth(25);
 $s1->getColumnDimension('B')->setWidth(28);
 $s1->getColumnDimension('C')->setWidth(28);
-$s1->getColumnDimension('D')->setWidth(28);
+$s1->getColumnDimension('D')->setWidth(36);
 
 // ========== Autorizações ==========
 $s2 = $xls->createSheet();

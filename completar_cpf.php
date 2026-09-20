@@ -1,1 +1,49 @@
-<?php//$conexao = "conexao.php";//include_once $conexao;//include "valida/mascaraCPF.php";//include "valida/mascaras.php";$con = mysql_connect('bdcasasvillage.mysql.dbaas.com.br', 'bdcasasvillage', 'Village@2024');if (!$con) {    echo "<meta http-equiv='refresh' content='0; URL=home.php'>      <script type=\"text/javascript\">      alert(\"Falha na comunicação com o banco de dados!  \");      </script>                ";    return die;}$db = mysql_select_db("bdcasasvillage", $con);$q = strtolower($_GET["q"]);//echo ('lei q' . $_GET["q"]);$sql = "SELECT DISTINCT CPF FROM proprietario WHERE CPF like '%" . $q . "%'";$query = mysql_query($sql); // or die ("Erro". mysql_query());//echo($sql . '<p>');//echo' / ';//echo($sql);//exit();while ($reg = mysql_fetch_array($query)) {    print formatarDocumento($reg["CPF"]) . "\n";}function formatarDocumento($numero) {    // Remove todos os caracteres que não sejam números    $numero = preg_replace('/\D/', '', $numero);    // Verifica se o número tem 11 dígitos (CPF) ou 14 dígitos (CNPJ)    if (strlen($numero) == 11) {        // Formata como CPF        $documentoFormatado = substr($numero, 0, 3) . '.' .                substr($numero, 3, 3) . '.' .                substr($numero, 6, 3) . '-' .                substr($numero, 9, 2);    } elseif (strlen($numero) == 14) {        // Formata como CNPJ        $documentoFormatado = substr($numero, 0, 2) . '.' .                substr($numero, 2, 3) . '.' .                substr($numero, 5, 3) . '/' .                substr($numero, 8, 4) . '-' .                substr($numero, 12, 2);    } else {        return "Número inválido";    }    return $documentoFormatado;}?>
+<?php
+include "conexao.php";
+
+$q = '';
+if (isset($_GET['q'])) {
+    $q = $_GET['q'];
+} elseif (isset($_GET['valor'])) {
+    $q = $_GET['valor'];
+}
+
+$q = preg_replace('/[^0-9]/', '', $q);
+if ($q === '') {
+    exit;
+}
+
+$q = mysql_real_escape_string($q);
+$sql = "SELECT DISTINCT CPF FROM proprietario
+        WHERE REPLACE(REPLACE(REPLACE(REPLACE(CPF,'.',''),'-',''),'/',''),' ','') LIKE '%" . $q . "%'
+        LIMIT 20";
+$query = mysql_query($sql);
+if (!$query) {
+    exit;
+}
+
+while ($reg = mysql_fetch_array($query)) {
+    $documento = formatarDocumento($reg['CPF']);
+    if ($documento !== '') {
+        print $documento . "\n";
+    }
+}
+
+function formatarDocumento($numero)
+{
+    $numero = preg_replace('/[^0-9]/', '', $numero);
+    if (strlen($numero) == 11) {
+        return substr($numero, 0, 3) . '.' .
+            substr($numero, 3, 3) . '.' .
+            substr($numero, 6, 3) . '-' .
+            substr($numero, 9, 2);
+    }
+    if (strlen($numero) == 14) {
+        return substr($numero, 0, 2) . '.' .
+            substr($numero, 2, 3) . '.' .
+            substr($numero, 5, 3) . '/' .
+            substr($numero, 8, 4) . '-' .
+            substr($numero, 12, 2);
+    }
+    return $numero;
+}
