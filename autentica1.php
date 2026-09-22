@@ -1,4 +1,8 @@
 <?php
+
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+
 include "conexao.php";
 $usuario = $_POST['usuario'];
 $senha = $_POST['senha'];
@@ -24,6 +28,10 @@ if ($_POST['botao'] == "Autenticar") {
 // busca usuario cadastrado
     $sql = ("SELECT * FROM usuarios WHERE usuario = '$usuario' and  senha = '$senha'");
     $sql = mysql_query("SELECT * FROM usuarios WHERE usuario = '$usuario' and  senha = '$senha'");
+    //echo $usuario . "<p>";
+    //echo $senha . "<p>";
+    //echo mysql_num_rows($sql) . "<p>";
+   // exit();
     if (mysql_num_rows($sql) == true) {
         while ($ln = mysql_fetch_array($sql)) {
             $proprietario = $ln['id_proprietario'];

@@ -134,7 +134,7 @@ function pf_render_feriados_inputs($feriados)
 </script>
 <div id="conteudo">
     <div id="cont">
-        <h2>Planilha Financeira — Autorizações de Hospedagem</h2>
+        <h2>Planilha Financeira — Autorizações de Hospedagem - <?= $dbname ?></h2>
         <hr>
         <p class="pf-note">
             Modelo alinhado à planilha de referência do Village.

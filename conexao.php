@@ -3,13 +3,13 @@
 $host = $_SERVER['HTTP_HOST']; // Exemplo: www.seudominio.com
 if ($host == 'localhost') {
     $host = 'localhost';
-    $dbname = 'bdcasasvillage';
+    $dbname = 'bd_votavillage';
     $user = 'root';
     $password = '';
 } else {
-    $host = 'bdcasasvillage.mysql.dbaas.com.br';
-    $dbname = 'bdcasasvillage';
-    $user = 'bdcasasvillage';
+    $host = 'bd_votavillage.mysql.dbaas.com.br';
+    $dbname = 'bd_votavillage';
+    $user = 'bd_votavillage';
     $password = 'Village@2024';
 }
 
@@ -23,4 +23,5 @@ if ($host == 'localhost') {
     return die;
 }
   $db = mysql_select_db($dbname, $con);
+  $GLOBALS['con'] = $con;
 ?>
