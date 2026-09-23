@@ -17,8 +17,6 @@ $tela = $_REQUEST['t'];
 $consulta = "SELECT * FROM unidade WHERE id_unidade = '$id_unidade'";
 $consulta = mysql_query($consulta);
 $ln = mysql_fetch_array($consulta);
-//echo (var_dump($ln));
-//exit();
 if (mysql_num_rows($consulta) != true) {
     echo "<meta http-equiv='refresh' content='0; URL=seguranca.php'>
     <script type=\"text/javascript\">
@@ -30,6 +28,23 @@ if (mysql_num_rows($consulta) != true) {
 }
 $cpf = $_COOKIE['usuario'];
 $nome = $_COOKIE['nome_usuario'];
+$tipoAcessoLogado = isset($_COOKIE['tipo_acesso']) ? $_COOKIE['tipo_acesso'] : '';
+$ehAdmMaster = ($tipoAcessoLogado === 'adm' || $tipoAcessoLogado === 'sup' || $tipoAcessoLogado === 'master');
+if (!$ehAdmMaster) {
+    $cpfLogado = str_replace(".", "", $cpf);
+    $cpfLogado = str_replace("-", "", $cpfLogado);
+    $cpfLogado = str_replace("/", "", $cpfLogado);
+    $queryDono = mysql_query("SELECT id_proprietario FROM proprietario WHERE CPF = '$cpfLogado'");
+    $lnDono = mysql_fetch_array($queryDono);
+    if (!$lnDono || $ln['id_proprietario'] != $lnDono['id_proprietario']) {
+        echo "<meta http-equiv='refresh' content='0; URL=cadastra_unidade.php'>
+    <script type=\"text/javascript\">
+    alert(\"Não é permitido alterar unidade de outro proprietário!\");
+    </script>
+  ";
+        return die;
+    }
+}
 
 // Quando vier da área administrativa cpf será outro
 if ($tela == 'adm') {

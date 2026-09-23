@@ -38,12 +38,17 @@ $cpfret = '';
 $cep = '';
 $telefone = '';
 $tipoacesso = '';
+$perfilSel = '';
+$conselho = 'não';
 $nome = '';
 $cor_input = '';
+$alertaCampos = '';
 $ln['endereco'] = '';
 $ln['cidade'] = '';
 $ln['estado'] = '';
 $ln['email'] = '';
+$tipoAcessoLogado = isset($_COOKIE['tipo_acesso']) ? $_COOKIE['tipo_acesso'] : '';
+$ehSup = ($tipoAcessoLogado === 'sup' || $tipoAcessoLogado === 'master');
 
 
 $botões = '<input type="submit" name="botao" value="Consultar" />
@@ -69,6 +74,7 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
     $email = isset($_POST['email']) ? $_POST['email'] : '';
     $telefone = isset($_POST['telefone']) ? $_POST['telefone'] : '';
     $perfil = isset($_POST['perfil']) ? $_POST['perfil'] : '';
+    $conselho = isset($_POST['conselho']) ? $_POST['conselho'] : 'não';
     $acao = 'Incluir dados de proprietário';
 
     if ($_REQUEST['botao'] == 'Atualizar Dados') {
@@ -87,6 +93,7 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
             'email' => $email,
             'telefone' => $telefone,
             'perfil' => $perfil,
+            'conselho' => $conselho,
             'voltar' => 'adm',
             'botao' => $acao
         );
@@ -141,23 +148,23 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
         } else {
             echo "<meta http-equiv='refresh' content='0; URL=proprietario_cadastro.php'>
                 <script type=\"text/javascript\">
-                alert(\"Cadastro realizado com sucesso!  \");
+                alert(\"{$message}  \");
                 </script>
                 ";
-//            echo "<meta http-equiv='refresh' content='0; '>
-//                    <script type=\"text/javascript\">
-//                    alert(\"{$message} \");
-//                    history.back(); 
-//                    </script> ";
             return die;
         }
     } else {
-        echo "<meta http-equiv='refresh' content='0; '>
-                <script type=\"text/javascript\">
-                alert(\"Todos os campos devem ser preenchidos  \");
-                history.back(); 
-                </script> ";
-        return die;
+        $alertaCampos = 'Todos os campos devem ser preenchidos';
+        $cpfret = $cpf;
+        $ln['endereco'] = $endereco;
+        $ln['cidade'] = $cidade;
+        $ln['estado'] = $estado;
+        $ln['email'] = $email;
+        $perfilSel = $perfil;
+        if ($_REQUEST['botao'] == 'Atualizar Dados') {
+            $botões = '<input type="submit" name="botao" value="Atualizar Dados" />
+          <input type="submit" name="botao" value="Incluir dados de proprietário" />';
+        }
     }
 } else {
     if ($_REQUEST['botao'] == 'Consultar') {
@@ -237,6 +244,11 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
         $sql2 = mysql_query($sql2);
         $ln2 = mysql_fetch_array($sql2);
         $tipoacesso = $ln2['tipo_acesso'];
+        $perfilSel = $tipoacesso;
+        $conselho = isset($ln2['conselho']) ? strtolower(trim($ln2['conselho'])) : 'não';
+        if ($conselho !== 'sim') {
+            $conselho = 'não';
+        }
         switch ($tipoacesso) {
             case 'con':
                 $tipoacesso = 'Proprietário';
@@ -321,6 +333,9 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
         <h2>&nbsp;&nbsp;Consulta Dados cadastrais</h2><br>
         <hr><br>
         <!--<form method="post" action= "funcoes/proprietario_salvar.php" enctype="multipart/form-data">-->
+        <?php if ($alertaCampos !== '') { ?>
+        <script type="text/javascript">alert("<?= str_replace('"', '\\"', $alertaCampos) ?>");</script>
+        <?php } ?>
         <form id="cadastro" method="post" action= "proprietario_cadastro.php" enctype="multipart/form-data">
             <table width="75%" border="0">
                 <tr>
@@ -372,12 +387,23 @@ if ($_REQUEST['botao'] == 'Incluir dados de proprietário' || $_REQUEST['botao']
                     <td width="6%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Perfil de acesso:</b> </td>
                     <th width="25%" align="left" scope="col">
                         <select id="perfil" name="perfil" ><font size="2"; color="#000000">
-                            <option  value="<?= $tipoacesso ?>" selected="selected"><?= $tipoacesso ?></option>
-                            <option value="adm">Administrativo</option>
-                            <option value="con">Proprietário</option>
-                            <option value="seg">Segurança</option>
+                            <option value="" <?= ($perfilSel === '') ? 'selected="selected"' : '' ?>>Selecione...</option>
+                            <option value="adm" <?= ($perfilSel === 'adm' || $perfilSel === 'Administrativo') ? 'selected="selected"' : '' ?>>Administrativo</option>
+                            <option value="con" <?= ($perfilSel === 'con' || $perfilSel === 'Proprietário') ? 'selected="selected"' : '' ?>>Proprietário</option>
+                            <option value="seg" <?= ($perfilSel === 'seg' || $perfilSel === 'Segurança') ? 'selected="selected"' : '' ?>>Segurança</option>
+                            <?php if ($ehSup || $perfilSel === 'sup' || $perfilSel === 'Master') { ?>
+                            <option value="sup" <?= ($perfilSel === 'sup' || $perfilSel === 'Master') ? 'selected="selected"' : '' ?>>Master</option>
+                            <?php } ?>
                         </select>
                     </th>        
+                </tr>
+                <tr>
+                    <td width="6%" align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Conselheiro:</b> </td>
+                    <th width="25%" align="left" scope="col">
+                        <label><input type="radio" name="conselho" value="sim" <?= ($conselho === 'sim') ? 'checked="checked"' : '' ?> /> Sim</label>
+                        &nbsp;&nbsp;
+                        <label><input type="radio" name="conselho" value="nao" <?= ($conselho !== 'sim') ? 'checked="checked"' : '' ?> /> Não</label>
+                    </th>
                 </tr> 
             </table>
 

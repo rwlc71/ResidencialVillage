@@ -3,13 +3,13 @@ $host = $_SERVER['HTTP_HOST']; // Exemplo: www.seudominio.com
 // Configuração do banco de dados
 if ($host == 'localhost') {
     $host = 'localhost';
-    $dbname = 'bdcasasvillage';
+    $dbname = 'bd_votavillage';
     $user = 'root';
     $password = '';
 } else {
-    $host = 'bdcasasvillage.mysql.dbaas.com.br';
-    $dbname = 'bdcasasvillage';
-    $user = 'bdcasasvillage';
+    $host = 'bd_votavillage.mysql.dbaas.com.br';
+    $dbname = 'bd_votavillage';
+    $user = 'bd_votavillage';
     $password = 'Village@2024';
 }
 // Cabeçalho para resposta JSON

@@ -6,7 +6,6 @@
 session_name('SESSAO_PHP');
 include "conexao.php";
 include "valida/verifica_autenticacao.php";
-//include "valida/verifica_acesso.php";
 include "valida/valida_cpf.php";
 include "valida/mascaraCPF.php";
 include "valida/mascaras.php";
@@ -19,17 +18,22 @@ $cpf = $_COOKIE['usuario'];
 $cpf = str_replace(".", "", $cpf);
 $cpf = str_replace("-", "", $cpf);
 $cpf = str_replace("/", "", $cpf);
-//echo ('botao '.$_POST['botao']);
-//exit();
+$tipoAcessoLogado = isset($_COOKIE['tipo_acesso']) ? $_COOKIE['tipo_acesso'] : '';
+$podeCadastrarUnidade = ($tipoAcessoLogado === 'adm' || $tipoAcessoLogado === 'sup' || $tipoAcessoLogado === 'master');
+$disabledCampos = $podeCadastrarUnidade ? '' : 'disabled';
+$disabledBotaoCadastro = $podeCadastrarUnidade ? '' : 'disabled';
+$descEtapa = isset($descEtapa) ? $descEtapa : '';
+$nrUnidade = isset($nrUnidade) ? $nrUnidade : '';
+
 if ($_POST['botao'] != "") {
     $disabled = '';
     $botao = '<input type="submit" name="botao" value="Salvar dados alterados" />';
     $acao = 'funcoes/proprietario_salvar.php';
 }
-// Carrega dados do proprietario listado 
 $sql = "SELECT * FROM proprietario WHERE CPF = '$cpf'";
 $sql = mysql_query($sql);
 $ln = mysql_fetch_array($sql);
+$nomeProprietarioLogado = $ln ? $ln['nome'] : '';
 
 $tamanho = strlen($cpf);
 if ($tamanho > 11) {
@@ -40,6 +44,24 @@ if ($tamanho > 11) {
 $id_proprietario = $ln['id_proprietario'];
 $listaUnidade = false;
 ?>
+<?php if ($podeCadastrarUnidade) { ?>
+<script type="text/javascript" src="js/ajax.js"></script>
+<script type="text/javascript" src="js/scripts.js"></script>
+<script type="text/javascript" src="jquery-autocomplete/lib/jquery.js"></script>
+<script type="text/javascript" src="jquery-autocomplete/lib/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="jquery-autocomplete/lib/jquery.ajaxQueue.js"></script>
+<script type="text/javascript" src="jquery-autocomplete/lib/thickbox-compressed.js"></script>
+<script type="text/javascript" src="jquery-autocomplete/jquery.autocomplete.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery-autocomplete/jquery.autocomplete.css"/>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        $("#txtNome").autocomplete("completar_nome.php", {
+            width: 310,
+            selectFirst: false
+        });
+    });
+</script>
+<?php } ?>
 <div id="conteudo">
 
     <div id="cont">
@@ -51,24 +73,21 @@ $listaUnidade = false;
 
             <table width="80%" border="0">
                 <tr>
-                    <!--<td colspan="2"> <b>Dados Pessoais:</b></td>-->
-                </tr>
-
-<!--                <tr>
-                    <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CPF/CNPJ:</th>
-                    <th width="25%" align="left" scope="col">
-                        <input name="cpf" type="text" class="imput" id="cpf" size="14" maxlength="14" value="<?= $cpf ?>"
-                               placeholder="Somente números" onkeypress='mascaraMutuarios(this, cpfCnpj)' onblur='validaCPF(this)' disabled />
-                    </th>
-                </tr>-->
-                <tr>
                     <th width="6%" align="left" bgcolor="#ffffff"><font size="2"; >&nbsp;&nbsp;&nbsp;&nbsp;Proprietário:</th>
-                    <th width="25%" align="left" scope="col"><input type="text" value="<?= $ln['nome'] ?>" name="nome" size="60" disabled/></th>
+                    <th width="25%" align="left" scope="col">
+                        <?php if ($podeCadastrarUnidade) { ?>
+                            <input type="text" name="proprietario" id="txtNome" value="" size="60" class="input_forms" />
+                            <input type="hidden" name="cpf" id="idcpf" value="" />
+                        <?php } else { ?>
+                            <input type="text" value="<?= $nomeProprietarioLogado ?>" name="nome" size="60" disabled/>
+                            <input type="hidden" name="cpf" value="<?= $cpf ?>" />
+                        <?php } ?>
+                    </th>
                 </tr>
                 <tr>
                     <td width="6%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;Etapa:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="Etapa" name="Etapa" ><font size="2"; color="#000000">
+                        <select id="Etapa" name="Etapa" <?= $disabledCampos ?> ><font size="2"; color="#000000">
                             <option  value="<?= $descEtapa ?>" selected="selected"><?= $descEtapa ?></option>
                             <option value="Azaléia - AZ">Azaléia - AZ</option>
                             <option value="Bougainville - BO">Bougainville - BO</option>
@@ -78,13 +97,13 @@ $listaUnidade = false;
                             <option value="Pitangueiras - PIT">Pitangueiras - PIT</option>
                         </select>
                         &nbsp;<font size="2"; color="#000000">Unidade:
-                        <input type="text" value="<?= $nrUnidade ?>" name="nr_etapa" size="3" maxlength="3" />
+                        <input type="text" value="<?= $nrUnidade ?>" name="nr_etapa" size="3" maxlength="3" <?= $disabledCampos ?> />
                     </th>        
                 </tr> 
                 <tr>
                     <td width="15%"align="left" bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;Tipo de unidade:</b> </td>
                     <th width="25%" align="left" scope="col">
-                        <select id="tipo_unidade" name="tipo_unidade" ><font size="2"; color="#000000">
+                        <select id="tipo_unidade" name="tipo_unidade" <?= $disabledCampos ?> ><font size="2"; color="#000000">
                             <option  value="" selected="selected"></option>
                             <option value="Residência">Residência</option>
                             <option value="Locação Regular (+90dias)">Locação Regular (+90dias)</option>
@@ -94,9 +113,8 @@ $listaUnidade = false;
                 </tr> 
                 <tr>
                     <th align="left" bgcolor="#ffffff"><font size="2"; > &nbsp;&nbsp;&nbsp;&nbsp;Número de quartos:</th>
-                    <td ><input type="text" value="" name="qtde_quarto" size="5" maxlength="2"   />
-                        <font size="2"; ><b>Capacidade da unidade:</b> <input type="text" value="" maxlength="2" name="capacidade" size="5"   />
-                        <input type="hidden" name="cpf" value="<?= $cpf ?>" />
+                    <td ><input type="text" value="" name="qtde_quarto" size="5" maxlength="2" <?= $disabledCampos ?> />
+                        <font size="2"; ><b>Capacidade da unidade:</b> <input type="text" value="" maxlength="2" name="capacidade" size="5" <?= $disabledCampos ?> />
 
                     </td>
                 </tr>  
@@ -104,7 +122,7 @@ $listaUnidade = false;
                 <p></p>
                 <p></p>
                 <td align="left" width="15% bgcolor="#ffffff"><font size="2"; ><b>&nbsp;&nbsp;&nbsp;&nbsp;Documento de Titularidade:</b> </td>
-                <td align="left" ><input type="file" name="comprovante"  /> </td>
+                <td align="left" ><input type="file" name="comprovante" <?= $disabledCampos ?> /> </td>
                 </tr>
 
             </table>
@@ -112,8 +130,7 @@ $listaUnidade = false;
             <br>
             <p></p>
             <center>
-                <input type="submit" name="botao" value="Cadastrar unidade" />
-                <input type="submit" name="botao" value="Alterar unidade" />
+                <input type="submit" name="botao" value="Cadastrar unidade" <?= $disabledBotaoCadastro ?> />
             </center>    
         </form>
         <br />

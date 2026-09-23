@@ -212,9 +212,19 @@ switch ($ln['etapa']) {
                             + '<option value = "Locação por Temporada">Locação por Temporada</option>'
                             + '</select> ';
 							var cell4 = linha.insertCell(3);
-                            cell4.innerHTML = '<center><a href="javascript:void(0);" onclick="desvincularHospedee(<?= $ln['id_hospede'] ?>);" title="Excluir hóspede">' +
+                            cell4.innerHTML = '<center><a href="javascript:void(0);" onclick="removerLinhaHospede(this);" title="Remover linha">' +
                             ' <img src="images/lixeira.jpg" height="20" width="20" align="middle" border="0"> </a></center>';
                     }
+
+            function removerLinhaHospede(el) {
+                var linha = el;
+                while (linha && linha.tagName !== 'TR') {
+                    linha = linha.parentNode;
+                }
+                if (linha && linha.parentNode) {
+                    linha.parentNode.removeChild(linha);
+                }
+            }
 
             function salvarHospedes() {
                 var form = document.getElementById("formHospedes");

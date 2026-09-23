@@ -13,7 +13,12 @@ function carregaCpf(dado) {
     ajax(options, function (resp) {
         var r = (resp);
         if (r) {
-            document.getElementById('cpfcnpj').value = r;
+            var campo = document.getElementById('cpfcnpj')
+                || document.getElementById('txtCPF')
+                || document.getElementById('cpf');
+            if (campo) {
+                campo.value = r;
+            }
         }
     });
 }
@@ -74,21 +79,32 @@ function buscarDadosProprietario() {
             success: function (response) {
                 if (response.success) {
                     const select = document.getElementById('unidades');
-                    select.innerHTML = '';
-                    const optionDefault = document.createElement('option');
-                    optionDefault.value = '';
-                    optionDefault.textContent = 'Selecione...';
-                    select.appendChild(optionDefault);
-                    response.unidades.forEach(unidades => {
-                        const option = document.createElement('option');
-                        option.value = unidades.id_unidade;
-                        option.textContent = `${unidades.etapa_unidade}`;
-                        select.appendChild(option);
-                    });
-                    document.getElementById('id_proprietario').value = response.id_proprietario || '';
-                    document.getElementById('email').value = response.email || '';
-                    document.getElementById('unidade').value = response.unidade || '';
-                    document.getElementById('etapa').value = response.etapa || '';
+                    if (select) {
+                        select.innerHTML = '';
+                        const optionDefault = document.createElement('option');
+                        optionDefault.value = '';
+                        optionDefault.textContent = 'Selecione...';
+                        select.appendChild(optionDefault);
+                        const listaUnidades = response.unidades || [];
+                        listaUnidades.forEach(function (unidades) {
+                            const option = document.createElement('option');
+                            option.value = unidades.id_unidade;
+                            option.textContent = `${unidades.etapa_unidade}`;
+                            select.appendChild(option);
+                        });
+                    }
+                    if (document.getElementById('id_proprietario')) {
+                        document.getElementById('id_proprietario').value = response.id_proprietario || '';
+                    }
+                    if (document.getElementById('email')) {
+                        document.getElementById('email').value = response.email || '';
+                    }
+                    if (document.getElementById('unidade')) {
+                        document.getElementById('unidade').value = response.unidade || '';
+                    }
+                    if (document.getElementById('etapa')) {
+                        document.getElementById('etapa').value = response.etapa || '';
+                    }
                 } else {
                     alert('Proprietário não encontrado!');
                 }

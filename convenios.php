@@ -1,363 +1,418 @@
 <link href="css/style.css" type="text/css" rel="stylesheet" />
 <link rel="stylesheet" href="css/menu.css" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <script type="text/javascript" src="js/componentes.js"></script>
-<style>
-    /* Estilos do modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        padding-top: 20px;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        font-family: Arial, sans-serif; /* Fonte Arial */
+<?php
+session_name('SESSAO_PHP');
+include "conexao.php";
+include "topo.php";
 
+$parceiros = array(
+    array(
+        'id' => 'gas',
+        'categoria' => 'Serviços',
+        'titulo' => 'Revendedores de Gás',
+        'local' => 'Caldas Novas',
+        'imagem' => 'images/parceiros/gas.gif',
+        'itens' => array('Entrega de gás de cozinha e industrial', 'Atendimento por WhatsApp'),
+        'contatos' => array(
+            array('nome' => 'SETA GÁS', 'tel' => '(64) 9431-5995', 'wa' => '556494315995'),
+            array('nome' => 'Gás 7000', 'tel' => '(64) 3455-7000', 'wa' => '556434557000'),
+            array('nome' => 'Gás Vitória', 'tel' => '(64) 99240-2285', 'wa' => '5564992402285'),
+            array('nome' => 'FORTEGÁS', 'tel' => '(64) 99269-2213', 'wa' => '5564992692213'),
+        ),
+        'detalhes' => 'Revendedores de gás em Caldas Novas, com atendimento rápido pelo WhatsApp.'
+    ),
+    array(
+        'id' => 'marido',
+        'categoria' => 'Serviços',
+        'titulo' => 'Marido de Aluguel',
+        'local' => 'Etapa Pitangueiras, casa 81',
+        'imagem' => 'images/parceiros/faztudo.jpg',
+        'itens' => array('Serviços em geral', 'Eletricista', 'Reparos hidráulicos', 'Pintura', 'Iluminação decorativa'),
+        'contatos' => array(
+            array('nome' => 'WhatsApp', 'tel' => '(35) 90135-653', 'wa' => '5535991035653'),
+        ),
+        'detalhes' => 'Pequenos reparos e manutenção residencial no próprio Residencial Village.'
+    ),
+    array(
+        'id' => 'mimone',
+        'categoria' => 'Artesanato',
+        'titulo' => 'MIMONE Artesanato',
+        'local' => 'Residencial Village',
+        'imagem' => 'images/parceiros/mimone.jpg',
+        'itens' => array('Colares de mesa decorativos', 'Enfeite de porta', 'Envio para todo o Brasil', 'Atendimento de segunda a sexta'),
+        'instagram' => 'https://www.instagram.com/mimoneartesanato/?igsh=dHRlb3FjZTdiMmJl',
+        'contatos' => array(),
+        'detalhes' => 'Peças artesanais feitas no condomínio. Pedidos pelo Direct do Instagram.'
+    ),
+    array(
+        'id' => 'pizza',
+        'categoria' => 'Alimentação',
+        'titulo' => 'Pizzas da Marli',
+        'local' => 'Etapa Bougainville, casa 11',
+        'imagem' => 'images/parceiros/pizza.jpg',
+        'itens' => array('Pizzas de diversos sabores', 'Pães de queijo', 'Biscoitos de queijo'),
+        'contatos' => array(
+            array('nome' => 'Marli', 'tel' => '(62) 98173-7397', 'wa' => '5562981737397'),
+        ),
+        'detalhes' => 'Mini pizzas de frango, calabresa e presunto: R$ 5,00 cada. Biscoito de queijo (pacote): R$ 23,00. Pão de queijo (pacote): R$ 23,00.'
+    ),
+    array(
+        'id' => 'restaurar',
+        'categoria' => 'Serviços',
+        'titulo' => 'Restaurações e terapia',
+        'local' => 'Etapa Orquídeas, casa 47',
+        'imagem' => 'images/parceiros/restaurar.jpeg',
+        'itens' => array('Restauração de peças ornamentais', 'Peças em gesso e cimento', 'Acompanhamento escolar', 'Terapia para a terceira idade'),
+        'contatos' => array(
+            array('nome' => 'WhatsApp', 'tel' => '(64) 99200-1932', 'wa' => '5564992001932'),
+        ),
+        'detalhes' => 'Restaurações ornamentais e atendimento psicopedagógico no Residencial Village.'
+    ),
+    array(
+        'id' => 'empadas',
+        'categoria' => 'Alimentação',
+        'titulo' => 'Empadas da Cleia',
+        'local' => 'Residencial Village',
+        'imagem' => 'images/parceiros/empadas.jpeg',
+        'itens' => array('Empadas', 'Coxinhas', 'Encomendas'),
+        'contatos' => array(
+            array('nome' => 'Cleia', 'tel' => '(62) 98173-7397', 'wa' => '5561983078521'),
+        ),
+        'detalhes' => 'Sabores: frango com requeijão, carne de sol na nata, calabresa com requeijão, palmito e chocolate. Reserve pelo WhatsApp.'
+    ),
+    array(
+        'id' => 'faxina',
+        'categoria' => 'Serviços',
+        'titulo' => 'Faxina residencial',
+        'local' => 'Etapa Pitangueiras, casa 35',
+        'imagem' => 'images/parceiros/faxina.jpg',
+        'itens' => array('Limpeza de quartos, sala e cozinha', 'Banheiros, varanda e área de serviço', 'Garagem'),
+        'contatos' => array(
+            array('nome' => 'Daniele', 'tel' => '(62) 99968-9135', 'wa' => '5562999689135'),
+        ),
+        'detalhes' => 'Faxina/limpeza residencial. Valor de referência: R$ 150,00.'
+    ),
+    array(
+        'id' => 'boticario',
+        'categoria' => 'Beleza',
+        'titulo' => 'Boticário, Eudora e O.U.i',
+        'local' => 'Etapa Pitangueiras, casa 35',
+        'imagem' => 'images/parceiros/revenda.jpg',
+        'itens' => array('Perfumaria', 'Cuidados pessoais', 'Cabelo e maquiagem', 'Kits presente'),
+        'contatos' => array(
+            array('nome' => 'Daniele', 'tel' => '(62) 99968-9135', 'wa' => '5562999689135'),
+        ),
+        'detalhes' => 'Revenda de perfumaria e cuidados pessoais, com descontos. Peça pelo WhatsApp.'
+    ),
+);
+
+$categorias = array();
+foreach ($parceiros as $p) {
+    $categorias[$p['categoria']] = true;
+}
+$categorias = array_keys($categorias);
+sort($categorias);
+?>
+<style>
+    .cv-wrap { padding: 8px 6px 20px; }
+    .cv-intro {
+        color: #333;
+        font-size: 15px;
+        line-height: 1.5;
+        margin: 8px 0 16px;
     }
-    .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 60%;
+    .cv-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 12px 0 18px;
     }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
+    .cv-busca {
+        flex: 1 1 260px;
+        min-width: 220px;
+        padding: 9px 12px;
+        border: 1px solid #c5c5c5;
+        border-radius: 6px;
+        font-size: 14px;
     }
-    .close:hover, .close:focus {
-        color: black;
-        text-decoration: none;
+    .cv-chip {
+        border: 1px solid #191970 !important;
+        background: #fff !important;
+        color: #191970 !important;
+        border-radius: 16px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        box-shadow: none;
+        transform: none !important;
+    }
+    .cv-chip:hover {
+        background: #eef0fb !important;
+        color: #191970 !important;
+        transform: none !important;
+    }
+    .cv-chip.ativo,
+    .cv-chip.ativo:hover {
+        background: #191970 !important;
+        color: #fff !important;
+    }
+    .cv-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .cv-card {
+        width: 318px;
+        max-width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .cv-card:hover {
+        box-shadow: 0 6px 16px rgba(25,25,112,0.18);
+        transform: translateY(-2px);
+    }
+    .cv-card img.foto {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #f3f3f3;
         cursor: pointer;
     }
+    .cv-card-body { padding: 12px 14px 14px; }
+    .cv-cat {
+        display: inline-block;
+        background: #FC0;
+        color: #191970;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-bottom: 6px;
+    }
+    .cv-card h3 {
+        margin: 4px 0 6px;
+        color: #191970;
+        font-size: 18px;
+    }
+    .cv-local {
+        color: #555;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .cv-card ul {
+        margin: 0 0 10px 18px;
+        padding: 0;
+        color: #333;
+        font-size: 13px;
+    }
+    .cv-acoes {
+        margin-top: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .cv-btn {
+        display: inline-block;
+        text-decoration: none;
+        padding: 7px 10px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: bold;
+    }
+    .cv-btn-wa { background: #25D366; color: #fff; }
+    .cv-btn-ig { background: #C13584; color: #fff; }
+    .cv-btn-info {
+        background: #191970 !important;
+        color: #fff !important;
+        border: 0;
+        cursor: pointer;
+        transform: none !important;
+    }
+    .cv-btn-info:hover { background: #2a2a9a !important; }
+    .cv-vazio {
+        display: none;
+        width: 100%;
+        text-align: center;
+        padding: 30px 10px;
+        color: #666;
+        font-size: 15px;
+    }
+    .cv-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.55);
+    }
+    .cv-modal-box {
+        background: #fff;
+        width: 92%;
+        max-width: 520px;
+        margin: 6% auto;
+        padding: 18px 20px 20px;
+        border-radius: 10px;
+        position: relative;
+    }
+    .cv-modal-box h3 { color: #191970; margin-top: 0; }
+    .cv-close {
+        position: absolute;
+        right: 12px; top: 6px;
+        font-size: 28px;
+        cursor: pointer;
+        color: #666;
+    }
+    @media (max-width: 720px) {
+        .cv-card { width: 100%; }
+    }
 </style>
-<script>
-    // Função para mostrar o modal
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "block";
-    }
 
-    // Função para esconder o modal
-    function hideModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-</script>
 <div id="conteudo">
-    <?php
-    session_name('SESSAO_PHP');
-    include "conexao.php";
-//    include "valida/verifica_autenticacao.php";
-    include "valida/valida_cpf.php";
-    include "valida/mascaraCPF.php";
-    include "valida/mascaras.php";
-    include "topo.php";
-    ?>
-    <div id="conteudo">
-        <div id="cont">
-            <p>
+    <div id="cont">
+        <div class="cv-wrap">
             <h2>Convênios e Serviços</h2>
-
             <hr>
+            <p class="cv-intro">
+                Uma vantagem exclusiva do Residencial Village é reunir serviços e parcerias de moradores
+                e da cidade, incentivando a colaboração entre vizinhos e visitantes. Use a busca ou o filtro
+                para encontrar o que precisa e fale direto pelo WhatsApp.
+            </p>
 
-            <font size="3"; color="#000000"><p>
-                Uma de nossas vantagens exclusivas é oferecer ao nosso público interno e visitantes serviços e parcerias em diversas áreas de atuação proporcionados
-                por moradores do Residencial Village, incentivando assim a ajuda colaborativa em nossa sociedade.<p>
-                Confira abaixo os serviços oferecidos e seus contatos:
-            <hr>
-            <dl>
-                <dt><dd>
-                    <div class="estiloTabelas table-responsive">
+            <div class="cv-toolbar">
+                <input id="cvBusca" class="cv-busca" type="text" placeholder="Buscar por nome, serviço ou local..." onkeyup="filtrarConvenios()">
+                <button type="button" class="cv-chip ativo" data-cat="todos" onclick="filtrarCategoria(this)">Todos</button>
+                <?php foreach ($categorias as $cat) { ?>
+                    <button type="button" class="cv-chip" data-cat="<?= htmlspecialchars($cat, ENT_QUOTES, 'UTF-8') ?>" onclick="filtrarCategoria(this)"><?= htmlspecialchars($cat, ENT_QUOTES, 'UTF-8') ?></button>
+                <?php } ?>
+            </div>
 
-                        <div style="max-height: 600px; overflow-y: auto;">
-                            <table border="0" >
-                                <!-- ====================================================== -->
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/gas.gif" target="_blank">
-                                            <img src="images/parceiros/gas.gif" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal0')" onmouseout="hideModal('modal0')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>REVENDEDORES DE GÁS EM CALDAS NOVAS!!</h2></b>
-                                    <hr>
-                                         
-                                        <dd><li type="square" align='left' disc><b><i>SETA GÁS<i></b>  - Contate-nos pelo WhatsApp:(64)94315995
-                                        <a href="https://api.whatsapp.com/send?phone=556494315995" target="_blank"> 
-                                            <img src="images/parceiros/whatsapp.jpg"  height=25 width=25 align='middle' border="0" title="SETA GÁS!">
-                                        </a></li>
-
-                                        <li type="square" align='left' disc><b><i>Gás 7000<i></b>  - Contate-nos pelo WhatsApp: (64) 3455-7000
-                                        <a href="https://api.whatsapp.com/send?phone=556434557000" target="_blank"> 
-                                            <img src="images/parceiros/whatsapp.jpg"  height=25 width=25 align='middle' border="0" title="Gás 7000!">
-                                        </a></li>
-
-                                        <li type="square" align='left' disc><b><i>Gás Vitória <i></b>  - Contate-nos pelo WhatsApp:(64)99240-2285
-                                        <a href="https://api.whatsapp.com/send?phone=5564992402285" target="_blank"> 
-                                            <img src="images/parceiros/whatsapp.jpg"  height=25 width=25 align='middle' border="0" title="Gás Vitória | Gás de Cozinha e Gás Industrial">
-                                        </a></li> 
-                                        
-                                        <li type="square" align='left' disc><b><i>FORTEGÁS  <i></b>  - Contate-nos pelo WhatsApp:(64)992692213
-                                        <a href="https://api.whatsapp.com/send?phone=5564992692213" target="_blank"> 
-                                            <img src="images/parceiros/whatsapp.jpg"  height=25 width=25 align='middle' border="0" title="FORTEGÁS ">
-                                        </a></li> 
-                                        </dd>
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-                                <!-- ====================================================== -->
-
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/faztudo.jpg" target="_blank">
-                                            <img src="images/parceiros/faztudo.jpg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal0')" onmouseout="hideModal('modal0')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>MARIDO DE ALUGUEL!!</h2></b>
-                                    <ul><h3> <li>Residencial Village - Etapa Pitangueiras casa 81</li></h3><hr>
-                                        <li></li>  
-                                        <dt><dd><li type="disc" align='left'>Serviços em geral!</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Eletricista</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Reparos hidráulicos</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Pintura</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Iluminação decorativa</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Para mais informações entre em contato pelo pelo WhatsApp!</li> </dd></dt> 
-
-                                        <p><dt><dd><li align='left'><b>Contate-nos pelo WhatsApp:(35)90135653</b> 
-                                            <a href="https://api.whatsapp.com/send?phone=5535991035653" target="_blank"> 
-                                                <img src="images/parceiros/whatsapp.jpg" align='middle' height=20 width=20 align='middle' border="0" title="Clique aqui e marque uma visita!">
-                                            </a>
-                                        </li></dd></dt> 
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/mimone.jpg" target="_blank">
-                                            <img src="images/parceiros/mimone.jpg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal0')" onmouseout="hideModal('modal0')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>MIMONE Artesanato!!</h2></b>
-                                    <ul><h3> <li>Residencial Village</li></h3><hr>
-                                        <li></li>  
-                                        <dt><dd><li type="disc" align='left'>Colares de Mesa Decorativos e Enfeite de Porta!</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Envio para todo BR!</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Atendimento de Segunda a Sexta!</li> </dd></dt> 
-                                        <dt><dd><li type="disc" align='left'>Para mais informações entre em contato pelo Direct!</li> </dd></dt> 
-
-                                        <p><dt><dd><li align='left'><b>Siga-nos no Instagram:</b> 
-                                            <a href="https://www.instagram.com/mimoneartesanato/?igsh=dHRlb3FjZTdiMmJl#" target="_blank"> 
-                                                <img src="images/parceiros/instragram.jpg" align='middle' height=20 width=20 align='middle' border="0" title="Clique e entre em contato pelo Direct!">
-                                            </a>
-                                        </li></dd></dt> 
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/pizza.jpg" target="_blank">
-                                            <img src="images/parceiros/pizza.jpg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal1')" onmouseout="hideModal('modal1')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>PIZZAS DA MARLI !!</h2></b>
-                                    <ul><h3> <li>Residencial Village - Etapa Bougainville casa 11</li></h3><hr>
-                                        <li></li>  
-                                        <dt><dd><li align='left'>Temos pizzas de diversos sabores, pães e biscoitos de queijo!</li> </dd></dt> 
-                                        <p><dt><dd><li align='left'><b> Contate-nos pelo WhatsApp:(62)98173-7397</b>
-                                            <a href="https://api.whatsapp.com/send?phone=5562981737397" target="_blank"> 
-                                                <img src="images/parceiros/whatsapp.png" align='middle' height=20 width=20 align='middle' border="0" title="Clique aqui e encomende sua pizza!">
-                                            </a>
-                                        </li></dd></dt> 
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-<!-- =================================================================== -->
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/restaurar.jpeg" target="_blank">
-                                            <img src="images/parceiros/restaurar.jpeg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal()" onmouseout="hideModal()">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>RESTAURAÇÕES !!</h2></b>
-                                    <ul><h3> <li>Residencial Village - Etapa Orquideas casa 47</li></h3><hr>
-                                        <li></li>  
-                                        <dt><dd><li align='left'>Restaurações de peças ornamentais!</li> </dd></dt> 
-                                        <dt><dd><li align='left'>Venda de peças ornamentais em gesso e cimento.</li> </dd></dt> 
-                                        <dt><dd><li align='left'>Sou psicopedagoga e faço acompanhamento escolar e terapia para a terceira idade</li> </dd></dt> 
-                                        
-										<p><dt><dd><li align='left'><b> Contate-nos pelo WhatsApp:(64)99200-1932</b>
-                                            <a href="https://api.whatsapp.com/send?phone=5564992001932" target="_blank"> 
-                                                <img src="images/parceiros/whatsapp.png" align='middle' height=20 width=20 align='middle' border="0" title="Clique aqui e encomende sua pizza!">
-                                            </a>
-                                        </li></dd></dt> 
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-								
-
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/empadas.jpeg" target="_blank">
-                                            <img src="images/parceiros/empadas.jpeg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal()" onmouseout="hideModal()">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>EMPADAS DA CLEIA !!</h2></b>
-                                    <ul><h3> <li></li></h3><hr>
-                                        <li></li>  
-                                        <dt><dd><li align='left'>Fazemos empadas, coxinhas e atendemos encomendas!</li> </dd></dt>
-                                        <p> <dt><dd><li align='left'><b>Contate-nos pelo WhatsApp:(62)98173-7397</b>
-                                            <a href="https://api.whatsapp.com/send?phone=5561983078521" target="_blank"> 
-                                                <img src="images/parceiros/whatsapp.png" height=20 width=20 align='middle' border="0" title="Clique aqui e encomende suas empadas!">
-                                            </a>
-                                        </li></dd></dt>
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/images.png" target="_blank">
-                                            <img src="images/parceiros/faxina.jpg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal3')" onmouseout="hideModal('modal3')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2>FAXINA RESIDÊNCIAL </h2></b>
-                                    <ul><h3> <li></li></h3>
-                                        <ul><h3> <li>Residencial Village - Etapa Pitangueiras casa 35</li></h3><hr>
-                                            <dt><dd><li align='left'>Limpeza de todos os ambientes da casa, como quartos, sala, cozinha, banheiros, varanda, área de serviço e garagem!</li></dd></dt> 
-                                            <p><dt><dd><li align='left'><b>Contate-nos pelo WhatsApp: (62)999689135</b>
-                                                <a href="https://api.whatsapp.com/send?phone=5562999689135" target="_blank"> 
-                                                    <img src="images/parceiros/whatsapp.png" height=20 width=20 align='middle' border="0" title="Clique e nos contate!">
-                                                </a></dd></dt> 
-                                            </li>
-                                        </ul>
-                                </center>
-                                </td>
-                                </tr>
-
-                                <tr>
-                                    <td align="center" valign="middle" bgcolor="#E9E9E9">
-                                        <a href="images/parceiros/images.png" target="_blank">
-                                            <img src="images/parceiros/revenda.jpg" height=200 width=200 align='middle' border="0"
-                                                 onmouseover="showModal('modal5')" onmouseout="hideModal('modal5')">
-                                        </a>
-                                    </td>    
-                                    <td align="center">
-                                        <font size="3" color="#000000">
-                                <center>
-                                    <b><h2> BOTICARIO, EUDORA E O.U.I</h2></b>
-                                    <ul><h3> <li>Residencial Village - Etapa Pitangueiras casa 35</li></h3><hr>
-                                        <dt><dd><li align='left'>Aqui você encontra perfumaria, cuidados pessoais, corpo e banho, produtos para cabelo, kit presente, maquiagem e muito mais! Aproveite os descontos e compre agora mesmo!
-                                        </li> </dd></dt>
-                                        <p><dt><dd><li align='left'><b>Contate-nos pelo WhatsApp: (62)999689135</b>
-                                            <a href="https://api.whatsapp.com/send?phone=5562999689135" target="_blank"> 
-                                                <img src="images/parceiros/whatsapp.png" height=20 width=20 align='middle' border="0" title="Clique e nos contate!">
-                                            </a>
-                                        </li></dd></dt>
-                                    </ul>
-                                </center>
-                                </td>
-                                </tr>
-                            </table>
+            <div class="cv-grid" id="cvGrid">
+                <?php foreach ($parceiros as $p) {
+                    $busca = $p['titulo'] . ' ' . $p['categoria'] . ' ' . $p['local'] . ' ' . $p['detalhes'] . ' ' . implode(' ', $p['itens']);
+                    foreach ($p['contatos'] as $c) {
+                        $busca .= ' ' . $c['nome'] . ' ' . $c['tel'];
+                    }
+                    ?>
+                    <article class="cv-card" data-cat="<?= htmlspecialchars($p['categoria'], ENT_QUOTES, 'UTF-8') ?>" data-busca="<?= htmlspecialchars($busca, ENT_QUOTES, 'UTF-8') ?>">
+                        <img class="foto" src="<?= htmlspecialchars($p['imagem'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($p['titulo'], ENT_QUOTES, 'UTF-8') ?>" onclick="abrirModal('modal-<?= $p['id'] ?>')" onerror="this.onerror=null;this.style.objectFit='contain';this.src='images/logo.jpg';">
+                        <div class="cv-card-body">
+                            <span class="cv-cat"><?= htmlspecialchars($p['categoria'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <h3><?= htmlspecialchars($p['titulo'], ENT_QUOTES, 'UTF-8') ?></h3>
+                            <div class="cv-local"><?= htmlspecialchars($p['local'], ENT_QUOTES, 'UTF-8') ?></div>
+                            <ul>
+                                <?php foreach ($p['itens'] as $item) { ?>
+                                    <li><?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?></li>
+                                <?php } ?>
+                            </ul>
+                            <div class="cv-acoes">
+                                <?php foreach ($p['contatos'] as $c) {
+                                    $rotulo = (count($p['contatos']) > 1) ? $c['nome'] : 'WhatsApp';
+                                    ?>
+                                    <a class="cv-btn cv-btn-wa" href="https://api.whatsapp.com/send?phone=<?= htmlspecialchars($c['wa'], ENT_QUOTES, 'UTF-8') ?>" target="_blank"><?= htmlspecialchars($rotulo, ENT_QUOTES, 'UTF-8') ?></a>
+                                <?php } ?>
+                                <?php if (!empty($p['instagram'])) { ?>
+                                    <a class="cv-btn cv-btn-ig" href="<?= htmlspecialchars($p['instagram'], ENT_QUOTES, 'UTF-8') ?>" target="_blank">Instagram</a>
+                                <?php } ?>
+                                <button type="button" class="cv-btn cv-btn-info" onclick="abrirModal('modal-<?= $p['id'] ?>')">Detalhes</button>
+                            </div>
                         </div>
-                    </div>
+                    </article>
+                <?php } ?>
+                <div id="cvVazio" class="cv-vazio">Nenhum convênio encontrado para essa busca.</div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<?php foreach ($parceiros as $p) { ?>
+    <div id="modal-<?= $p['id'] ?>" class="cv-modal" onclick="fecharFundo(event, 'modal-<?= $p['id'] ?>')">
+        <div class="cv-modal-box">
+            <span class="cv-close" onclick="fecharModal('modal-<?= $p['id'] ?>')">&times;</span>
+            <h3><?= htmlspecialchars($p['titulo'], ENT_QUOTES, 'UTF-8') ?></h3>
+            <p><b>Local:</b> <?= htmlspecialchars($p['local'], ENT_QUOTES, 'UTF-8') ?></p>
+            <p><?= htmlspecialchars($p['detalhes'], ENT_QUOTES, 'UTF-8') ?></p>
+            <p><b>Serviços:</b></p>
+            <ul>
+                <?php foreach ($p['itens'] as $item) { ?>
+                    <li><?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?></li>
+                <?php } ?>
+            </ul>
+            <?php if (!empty($p['contatos'])) { ?>
+                <p><b>Contatos:</b></p>
+                <?php foreach ($p['contatos'] as $c) { ?>
+                    <p>
+                        <?= htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8') ?> — <?= htmlspecialchars($c['tel'], ENT_QUOTES, 'UTF-8') ?>
+                        <a class="cv-btn cv-btn-wa" href="https://api.whatsapp.com/send?phone=<?= $c['wa'] ?>" target="_blank">WhatsApp</a>
+                    </p>
+                <?php } ?>
+            <?php } ?>
+            <?php if (!empty($p['instagram'])) { ?>
+                <p><a class="cv-btn cv-btn-ig" href="<?= htmlspecialchars($p['instagram'], ENT_QUOTES, 'UTF-8') ?>" target="_blank">Abrir Instagram</a></p>
+            <?php } ?>
+        </div>
+    </div>
+<?php } ?>
 
+<script>
+    var categoriaAtiva = 'todos';
 
-            </dl>
-            </dt></dd>
+    function filtrarCategoria(botao) {
+        categoriaAtiva = botao.getAttribute('data-cat');
+        var chips = document.querySelectorAll('.cv-chip');
+        for (var i = 0; i < chips.length; i++) {
+            chips[i].className = 'cv-chip';
+        }
+        botao.className = 'cv-chip ativo';
+        filtrarConvenios();
+    }
 
-        </div><!-- fim div cont -->
-    </div> <!-- fim div conteudo -->
-</div> <!-- fim div conteudo -->
+    function filtrarConvenios() {
+        var busca = document.getElementById('cvBusca').value.toLowerCase();
+        var cards = document.querySelectorAll('.cv-card');
+        var visiveis = 0;
+        for (var i = 0; i < cards.length; i++) {
+            var cat = cards[i].getAttribute('data-cat');
+            var texto = (cards[i].getAttribute('data-busca') || '').toLowerCase();
+            var okCat = (categoriaAtiva === 'todos' || cat === categoriaAtiva);
+            var okBusca = (busca === '' || texto.indexOf(busca) !== -1);
+            var mostrar = okCat && okBusca;
+            cards[i].style.display = mostrar ? '' : 'none';
+            if (mostrar) visiveis++;
+        }
+        document.getElementById('cvVazio').style.display = visiveis ? 'none' : 'block';
+    }
+
+    function abrirModal(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+    function fecharModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+    function fecharFundo(ev, id) {
+        if (ev.target.id === id) {
+            fecharModal(id);
+        }
+    }
+    document.onkeydown = function (ev) {
+        ev = ev || window.event;
+        if (ev.keyCode === 27) {
+            var modais = document.querySelectorAll('.cv-modal');
+            for (var i = 0; i < modais.length; i++) {
+                modais[i].style.display = 'none';
+            }
+        }
+    };
+</script>
 <?php
 include "rodape.php";
 ?>
-<!-- Modal 1 -->
-<div id="modal1" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('modal1')">&times;</span>
-        <h2>PIZZAS DA MARLI!!</h2>
-        <p><strong>Mini pizzas de frango, calabresa e presunto:</strong> R$ 5,00 cada.</p>
-        <p><strong>Biscoito de queijo - pacote:</strong> R$ 23,00.</p>
-        <p><strong>Pão de queijo - pacote:</strong> R$ 23,00.</p>
-        <p><strong>Contato: </strong> Marli</p>
-    </div>
-</div>
-
-<!-- Modal 2 -->
-<div id="modal2" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('modal2')">&times;</span>
-        <h2>EMPADAS CLEIA</h2>
-        <p><strong>Produtos:</strong> Empadas, coxinhas e salgados de sabores diversos:
-        <li>Frango com requeijão </li>
-        <li> Carne de sol na nata</li>
-        <li> Calabresa com requeijão </li>
-        <li> Palmito</li>
-        <li> Chocolate </li>
-        <p><strong>Reserve já o seu! </strong> </p>
-        <p><strong>Contato: </strong> Cleia</p>
-
-    </div>
-</div>
-<div id="modal3" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('modal2')">&times;</span>
-        <h2>FAXINA RESIDÊNCIAL</h2>
-        <p><strong>Contato: </strong> Daniele</p>
-        <p><strong>Faxina/Limpeza Residencial - Valor:</strong> R$ 150,00.</p>
-    </div>
-</div>
-
-<div id="modal5" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="hideModal('modal2')">&times;</span>
-        <h2>REVENDERORA BOTICARIO, EUDORA E O.U.I</h2>
-        <p><strong>Aqui você encontra perfumaria, cuidados pessoais, corpo e banho, produtos para cabelo, kit presente, maquiagem e muito mais! Aproveite os descontos e compre agora mesmo! </strong> </p>
-
-
-        <p><strong>Contato: </strong> Daniele</p>
-    </div>
-</div>
-
-
-
-
-
-

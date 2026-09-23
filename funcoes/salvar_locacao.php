@@ -285,7 +285,7 @@ function verificaRangeDataUnidade($id_unidade, $dt_entrada, $dt_saida) {
 //        OR (dt_saida >= '$dt_entrada' AND dt_saida <= '$dt_saida')
 //        OR (dt_entrada < '$dt_entrada' AND dt_saida > '$dt_saida')))";
 
-    $sql_locacao = "SELECT COUNT(*) as total FROM locacao WHERE (id_unidade = '$id_unidade' and dt_entrada <= '$dt_saida' AND dt_saida > '$dt_entrada')";
+    $sql_locacao = "SELECT COUNT(*) as total FROM locacao WHERE (id_unidade = '$id_unidade' and dt_entrada < '$dt_saida' AND dt_saida > '$dt_entrada')";
     //echo($sql_locacao);
     //exit();
     $sql_locacao = mysql_query($sql_locacao);

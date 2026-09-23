@@ -19,6 +19,18 @@ $cpf = str_replace(".", "", $cpf);
 $cpf = str_replace("-", "", $cpf);
 $cpf = str_replace("/", "", $cpf);
 
+if ($cpf == '' && isset($_POST['proprietario']) && trim($_POST['proprietario']) != '') {
+    $nomeInformado = mysql_real_escape_string(trim($_POST['proprietario']));
+    $sqlNomeProp = mysql_query("SELECT * FROM proprietario WHERE nome = '" . $nomeInformado . "'");
+    if (mysql_num_rows($sqlNomeProp)) {
+        $lnNomeProp = mysql_fetch_array($sqlNomeProp);
+        $cpf = $lnNomeProp['CPF'];
+        $cpf = str_replace(".", "", $cpf);
+        $cpf = str_replace("-", "", $cpf);
+        $cpf = str_replace("/", "", $cpf);
+    }
+}
+
 //====================================
 
 If ($_POST['Etapa'] == "") {
@@ -221,6 +233,17 @@ If ($comprovante != '') {
 
 if ($_POST['botao'] == "Cadastrar unidade" || $_POST['botao'] == "Vincular unidade") {
 
+    $tipoAcessoLogado = isset($_COOKIE['tipo_acesso']) ? $_COOKIE['tipo_acesso'] : '';
+    $ehAdmMaster = ($tipoAcessoLogado === 'adm' || $tipoAcessoLogado === 'sup' || $tipoAcessoLogado === 'master');
+    if ($_POST['botao'] == "Cadastrar unidade" && !$ehAdmMaster) {
+        echo "<meta http-equiv='refresh' content='0; URL= ../cadastra_unidade.php'>
+                    <script type=\"text/javascript\">
+                    alert(\"Somente usuários com perfil Administrativo ou Master podem cadastrar unidade!\");
+                    </script>
+                    ";
+        return die;
+    }
+
     //================================= Gravar no banco - Inclusao 
     $sql = ("SELECT * FROM proprietario WHERE CPF = '$cpf'");
     $sql = mysql_query($sql);
@@ -299,12 +322,15 @@ if ($_POST['botao'] == "Cadastrar unidade" || $_POST['botao'] == "Vincular unida
                 $sql = mysql_query("SELECT * FROM proprietario WHERE CPF = '$cpf'");
                 $ln = mysql_fetch_array($sql);
                 if (mysql_num_rows($sql)) { //Alteração
-                    $sql15 = "UPDATE unidade SET etapa = '" . $verificaEtapa . "',
+                    $camposUpdateUnidade = "etapa = '" . $verificaEtapa . "',
                             numero_etapa = '" . $nr_etapa_formatado . "',
                             tipo_unidade = '" . $_POST['tipo_unidade'] . "',
                             qtde_quartos = '" . $_POST['qtde_quarto'] . "',
-                            capacidade = '" . $_POST['capacidade'] . "',
-                            comprovante_titularidade = '" . $comprovante . "'
+                            capacidade = '" . $_POST['capacidade'] . "'";
+                    if ($comprovante != '') {
+                        $camposUpdateUnidade .= ", comprovante_titularidade = '" . $comprovante . "'";
+                    }
+                    $sql15 = "UPDATE unidade SET " . $camposUpdateUnidade . "
                             WHERE id_unidade = '" . $ln1['id_unidade'] . "'";
                     $sql5 = mysql_query($sql15);
 
@@ -320,7 +346,6 @@ if ($_POST['botao'] == "Cadastrar unidade" || $_POST['botao'] == "Vincular unida
                     return die;
                 }
             } else {
-                // não pode alterar devido a titularidade não ser a dele
                 echo "<meta http-equiv='refresh' content='0; '>
                     <script type=\"text/javascript\">
                      alert(\"Refaça a transação: Unidade $verificaEtapa - $nr_etapa_formatado já está cadastrada para outro proprietário!\");
@@ -329,6 +354,13 @@ if ($_POST['botao'] == "Cadastrar unidade" || $_POST['botao'] == "Vincular unida
                     </script> ";
                 return die;
             }
+        } else {
+            echo "<meta http-equiv='refresh' content='0; '>
+                    <script type=\"text/javascript\">
+                    alert(\"Unidade $verificaEtapa - $nr_etapa_formatado não encontrada para alteração!\");
+                    history.back();
+                    </script> ";
+            return die;
         }
     }
 }

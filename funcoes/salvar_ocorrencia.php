@@ -27,10 +27,9 @@ if ($_POST['botao'] == "Cadastrar Ocorrência") {
 
 //Busca dados do proprietário
     $buscaDados = "SELECT prop.nome, prop.email, loc.id_locacao, uni.etapa, uni.numero_etapa  FROM locacao loc "
-            . " JOIN ocorrencias oco ON oco.id_locacao = loc.id_locacao"
             . " JOIN unidade uni ON uni.id_unidade = loc.id_unidade"
             . " JOIN proprietario prop ON prop.id_proprietario = loc.id_proprietario"
-            . " WHERE oco.id_locacao = '" . $id_audita . "'";
+            . " WHERE loc.id_locacao = '" . $id_audita . "'";
 
     $filtro = mysql_query($buscaDados);
     $ln = mysql_fetch_array($filtro);

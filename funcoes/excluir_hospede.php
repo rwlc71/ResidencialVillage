@@ -6,14 +6,22 @@ include "../valida/verifica_autenticacao.php";
 include "senha.php";
 
 
-$id_hospede = $_POST['id_hospede'];
+$id_hospede = isset($_POST['id_hospede']) ? intval($_POST['id_hospede']) : 0;
+if ($id_hospede <= 0) {
+    echo json_encode(['status' => 'error', 'message' => 'Hóspede inválido.']);
+    return;
+}
 
-//================================= Gravar no banco - Inclusao de hospedes
+$id_locacao = '';
+$sqlHosp = mysql_query("SELECT id_locacao FROM hospede WHERE id_hospede = " . $id_hospede);
+if ($sqlHosp && mysql_num_rows($sqlHosp)) {
+    $lnHosp = mysql_fetch_array($sqlHosp);
+    $id_locacao = $lnHosp['id_locacao'];
+}
+
 $deletou = false;
 
 $query = "DELETE FROM hospede WHERE id_hospede = $id_hospede";
-//echo($query);
-//exit();
 $result = mysql_query($query);
 if ($result) {
     $deletou = true;

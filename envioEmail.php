@@ -2,13 +2,13 @@
 
 // Configuração do banco de dados
 $host = 'localhost';
-$dbname = 'bdcasasvillage';
+$dbname = 'bd_votavillage';
 $user = 'root';
 $password = '';
 
-//$host = 'bdcasasvillage.mysql.dbaas.com.br';
-//$dbname = 'bdcasasvillage';
-//$user = 'bdcasasvillage';
+//$host = 'bd_votavillage.mysql.dbaas.com.br';
+//$dbname = 'bd_votavillage';
+//$user = 'bd_votavillage';
 //$password = 'Village@2024';
 
 try {

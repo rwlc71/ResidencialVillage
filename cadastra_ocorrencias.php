@@ -154,12 +154,10 @@ if ($_REQUEST['botao'] == "Cadastrar Ocorrência") {
                     </script> ";
         return die;
     } else {
-        echo "<meta http-equiv='refresh' content='0; '>
-        <script type=\"text/javascript\">
-            alert(\"$msg!\");
-            history.back(); 
+        $msgJs = isset($msg) ? str_replace(array('\\', '"'), array('\\\\', '\\"'), $msg) : 'Falha ao registrar ocorrência.';
+        echo "<script type=\"text/javascript\">
+            alert(\"" . $msgJs . "\");
           </script>  ";
-        return die;
     }
 }
 ?>
@@ -361,12 +359,10 @@ if ($_REQUEST['botao'] == "Cadastrar Ocorrência") {
                     $num_rows = mysql_num_rows($filtro);
 
                     if ($num_rows == 0) {
-                        echo "<meta http-equiv='refresh' content='0; URL=cadastra_ocorrencias.php'>
-                <script type=\"text/javascript\">
-                alert(\"Não existem registros cadastrados para a consulta realizada!  \");
-                </script>
-                ";
-                        return die;
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            echo "<script type=\"text/javascript\">alert(\"Não existem registros cadastrados para a consulta realizada!\");</script>";
+                        }
+                        echo '<tr><td colspan="12" align="center"><font size="2" color="#000000">Não existem registros cadastrados para a consulta realizada!</font></td></tr>';
                     }
 //==========================================                    
                     while ($ln = mysql_fetch_array($filtro)) {

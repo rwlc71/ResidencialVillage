@@ -5,6 +5,7 @@ session_start();
 include "../conexao.php";
 include "../valida/valida_cpf.php";
 include "senha.php";
+include "enviar_email.php";
 
 //echo(var_dump($_POST));
 //echo('Salvar - chegou');
@@ -43,7 +44,7 @@ if (validarCPFeCNPJ($cpf)) {
 //}
 
 If ($valida == "nok") {
-    echo json_encode(["status" => "error", "message" => "Número de CPF inválido!"]);
+    echo json_encode(["status" => "error", "message" => mensagemCpfCnpjInvalido($cpf)]);
     return;
 }
 
@@ -78,6 +79,14 @@ If ($_POST['telefone'] == "") {
     return;
 }
 
+$conselho = 'não';
+if (isset($_POST['conselho'])) {
+    $conselhoInformado = strtolower(trim($_POST['conselho']));
+    if ($conselhoInformado === 'sim') {
+        $conselho = 'sim';
+    }
+}
+
 if ($_POST['botao'] == "Incluir dados de proprietário") {
 //    echo json_encode(["status" => "error", "message" => "Entrou em incluir! "]);
 //    return;
@@ -89,9 +98,11 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
         return;
     } else {
         $lgpd = '0';
-        $sql = "INSERT INTO proprietario (id_proprietario, CPF, nome, endereco, cidade, estado, cep, email, telefone, lgpd)
-                VALUES (NULL,'" . $cpf . "','" . $_POST['nome'] . "','" . $_POST['endereco'] . "',
-                '" . $_POST['cidade'] . "','" . $_POST['estado'] . "','" . $cep . "','" . $_POST['email'] . "','" . $telefone . "','" . $lgpd . "')";
+        $usu_principal = '1';
+        $adimplente = '0';
+        $sql = "INSERT INTO proprietario (id_proprietario, usu_principal, CPF, nome, endereco, cidade, estado, cep, email, telefone, lgpd, adimplente)
+                VALUES (NULL,'" . $usu_principal . "','" . $cpf . "','" . $_POST['nome'] . "','" . $_POST['endereco'] . "',
+                '" . $_POST['cidade'] . "','" . $_POST['estado'] . "','" . $cep . "','" . $_POST['email'] . "','" . $telefone . "','" . $lgpd . "','" . $adimplente . "')";
 
         $result = mysql_query($sql);
         if (!$result) {
@@ -120,8 +131,8 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
                 break;
         }
 
-        $sql2 = "INSERT INTO usuarios (id_proprietario, usuario, senha, tipo_acesso)
-                 VALUES ('" . $ln['id_proprietario'] . "','" . $cpf . "','" . $senha . "','" . $perfil . "')";
+        $sql2 = "INSERT INTO usuarios (id_proprietario, usuario, senha, tipo_acesso, conselho)
+                 VALUES ('" . $ln['id_proprietario'] . "','" . $cpf . "','" . $senha . "','" . $perfil . "','" . $conselho . "')";
 
         $result = mysql_query($sql2);
         if (!$result) {
@@ -144,23 +155,17 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
                 <br><b><i>É, sobretudo, o convívio numa sociedade fechada de pessoas que idealizam</i><b>
                 <b><i>e projetam para si uma melhor qualidade de vida.</i><b>";
 
-        $formato = "MINE-Version: 1.1" . $quebra_linha;
-        $formato .= "Content-Type: text/html; charset=UTF-8" . $quebra_linha;
-        $formato .= "From: " . "Residencial Village Thermas das Caldas <residencial_village@1portodos.com.br>" . $quebra_linha;
-        $formato .= "Return-Path: " . "residencial_village@1portodos.com.br" . $quebra_linha;
-
-        $envio = mail($_POST['email'], $assunto, $mensagem, $formato, "-fresidencial_village@1portodos.com.br");
+        $envio = enviar_email_sistema($_POST['email'], $assunto, $mensagem);
 
         if ($envio) {
-            echo json_encode(["status" => "error", "message" => "Cadastro realizado com sucesso! "]);
+            echo json_encode(["status" => "success", "message" => "Cadastro realizado com sucesso!"]);
             return;
         } else {
             $confirma = "Cadastro realizado com sucesso! No entanto, tivemos um problema ao enviar o e-mail "
                     . "de confirmação. Por favor, verifique se o endereço de e-mail informado está correto "
                     . "ou tente novamente mais tarde. Caso precise de ajuda, entre em contato "
                     . "com o nosso suporte.";
-            
-            echo json_encode(["status" => "error", "message" => $confirma]);
+            echo json_encode(["status" => "success", "message" => $confirma]);
             return;
         }
     }
@@ -202,7 +207,7 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
             return;
         } else {
 
-            $sql2 = "UPDATE usuarios SET tipo_acesso = '" . $perfil . "'  WHERE id_proprietario = '" . $ln['id_proprietario'] . "'";
+            $sql2 = "UPDATE usuarios SET tipo_acesso = '" . $perfil . "', conselho = '" . $conselho . "'  WHERE id_proprietario = '" . $ln['id_proprietario'] . "'";
 
 //            echo json_encode(["status" => "error", "message" => $sql1]);
 //            return;
@@ -213,10 +218,13 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
                 echo json_encode(["status" => "error", "message" => "Falha ao atualizar novo usuário na tabela USUÁRIOS: " . $erro]);
                 return;
             } else {
-                echo json_encode(["status" => "error", "message" => "Atualização realizada com sucesso!"]);
+                echo json_encode(["status" => "success", "message" => "Atualização realizada com sucesso!"]);
                 return;
             }
         }
+    } else {
+        echo json_encode(["status" => "error", "message" => "Proprietário não encontrado para atualização."]);
+        return;
     }
 }
 ?>

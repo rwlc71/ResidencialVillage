@@ -23,6 +23,22 @@ $cpf = str_replace(".", "", $cpf);
 $cpf = str_replace("-", "", $cpf);
 $cpf = str_replace("/", "", $cpf);
 
+$tipoAcessoLogado = isset($_COOKIE['tipo_acesso']) ? $_COOKIE['tipo_acesso'] : '';
+$ehAdmMaster = ($tipoAcessoLogado === 'adm' || $tipoAcessoLogado === 'sup' || $tipoAcessoLogado === 'master');
+if (!$ehAdmMaster) {
+    $sqlUnidadeAtual = mysql_query("SELECT id_proprietario FROM unidade WHERE id_unidade = '" . mysql_real_escape_string($id_unidade) . "'");
+    $lnUnidadeAtual = mysql_fetch_array($sqlUnidadeAtual);
+    $sqlPropLogado = mysql_query("SELECT id_proprietario FROM proprietario WHERE CPF = '" . mysql_real_escape_string($cpf) . "'");
+    $lnPropLogado = mysql_fetch_array($sqlPropLogado);
+    if (!$lnUnidadeAtual || !$lnPropLogado || $lnUnidadeAtual['id_proprietario'] != $lnPropLogado['id_proprietario']) {
+        echo "<meta http-equiv='refresh' content='0; URL= ../cadastra_unidade.php'>
+      <script type=\"text/javascript\">
+      alert(\"Não é permitido alterar unidade de outro proprietário!\");
+      </script> ";
+        return die;
+    }
+}
+
 //====================================
 $retornar = 'cadastra_unidade.php';
 
@@ -127,10 +143,13 @@ if ($_POST['botao'] == "Salvar Alterações") {
     $sql = mysql_query($sql);
     $ln = mysql_fetch_array($sql);
     if (mysql_num_rows($sql)) { //Alteração
-        $sql1 = "UPDATE unidade SET tipo_unidade = '" . $_POST['tipo_unidade'] . "',
+        $camposUpdate = "tipo_unidade = '" . $_POST['tipo_unidade'] . "',
                     qtde_quartos = '" . $_POST['qtde_quarto'] . "',
-                    capacidade = '" . $_POST['capacidade'] . "',
-                    comprovante_titularidade = '" . $comprovante . "'
+                    capacidade = '" . $_POST['capacidade'] . "'";
+        if ($comprovante != '') {
+            $camposUpdate .= ", comprovante_titularidade = '" . $comprovante . "'";
+        }
+        $sql1 = "UPDATE unidade SET " . $camposUpdate . "
                     WHERE id_unidade = '" . $id_unidade . "'";
 //            echo($sql1);
 //            exit();

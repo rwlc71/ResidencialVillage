@@ -5,6 +5,11 @@ session_start();
 include "../conexao.php";
 include "../valida/valida_cpf.php";
 include "senha.php";
+if (is_readable(dirname(__FILE__) . '/funcoes/enviar_email.php')) {
+    include dirname(__FILE__) . '/funcoes/enviar_email.php';
+} else {
+    include dirname(__FILE__) . '/enviar_email.php';
+}
 
 //echo(var_dump($_POST));
 //exit();
@@ -33,9 +38,10 @@ if (validarCPFeCNPJ($cpf)) {
 }
 
 if ($valida == "nok") {
+    $msgDoc = mensagemCpfCnpjInvalido($cpf);
     echo "<meta http-equiv='refresh' content='0; URL= ../proprietario_cadastro.php'>
  <script type=\"text/javascript\">
- alert(\"Número de CPF inválido!\");
+ alert(\"" . $msgDoc . "\");
  </script>
    ";
     Return die;
@@ -99,6 +105,15 @@ If ($_POST['telefone'] == "") {
                 ";
     return die;
 }
+
+$conselho = 'não';
+if (isset($_POST['conselho'])) {
+    $conselhoInformado = strtolower(trim($_POST['conselho']));
+    if ($conselhoInformado === 'sim') {
+        $conselho = 'sim';
+    }
+}
+
 if ($_POST['botao'] == "Incluir dados de proprietário") {
     //================================= Gravar no banco - Inclusao
     $sql = mysql_query("SELECT * FROM proprietario WHERE CPF = '$cpf'");
@@ -111,9 +126,11 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
         return die;
     } else {
         $lgpd = '0';
-        $sql = "INSERT INTO proprietario (id_proprietario, CPF, nome, endereco, cidade, estado, cep, email, telefone, lgpd)
-                VALUES (NULL,'" . $cpf . "','" . $_POST['nome'] . "','" . $_POST['endereco'] . "',
-                '" . $_POST['cidade'] . "','" . $_POST['estado'] . "','" . $cep . "','" . $_POST['email'] . "','" . $telefone . "','" . $lgpd . "')";
+        $usu_principal = '1';
+        $adimplente = '0';
+        $sql = "INSERT INTO proprietario (id_proprietario, usu_principal, CPF, nome, endereco, cidade, estado, cep, email, telefone, lgpd, adimplente)
+                VALUES (NULL,'" . $usu_principal . "','" . $cpf . "','" . $_POST['nome'] . "','" . $_POST['endereco'] . "',
+                '" . $_POST['cidade'] . "','" . $_POST['estado'] . "','" . $cep . "','" . $_POST['email'] . "','" . $telefone . "','" . $lgpd . "','" . $adimplente . "')";
 
         $result = mysql_query($sql);
         if (!$result) {
@@ -130,8 +147,8 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
         $id_doc = mysql_insert_id();
         $senha = geraSenha(10);
 
-        $sql1 = "INSERT INTO usuarios (id_proprietario, usuario, senha, tipo_acesso)
-                 VALUES ('" . $ln['id_proprietario'] . "','" . $cpf . "','" . $senha . "','" . 'con' . "')";
+        $sql1 = "INSERT INTO usuarios (id_proprietario, usuario, senha, tipo_acesso, conselho)
+                 VALUES ('" . $ln['id_proprietario'] . "','" . $cpf . "','" . $senha . "','" . 'con' . "','" . $conselho . "')";
 
         $result = mysql_query($sql1);
         if (!$result) {
@@ -157,12 +174,7 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
                 <br><b><i>É, sobretudo, o convívio numa sociedade fechada de pessoas que idealizam</i><b>
                 <b><i>e projetam para si uma melhor qualidade de vida.</i><b>";
 
-        $formato = "MINE-Version: 1.1" . $quebra_linha;
-        $formato .= "Content-Type: text/html; charset=UTF-8" . $quebra_linha;
-        $formato .= "From: " . "Residencial Village Thermas das Caldas <residencial_village@1portodos.com.br>" . $quebra_linha;
-        $formato .= "Return-Path: " . "residencial_village@1portodos.com.br" . $quebra_linha;
-
-        $envio = mail($_POST['email'], $assunto, $mensagem, $formato, "-fresidencial_village@1portodos.com.br");
+        $envio = enviar_email_sistema($_POST['email'], $assunto, $mensagem);
 
         if ($envio) {
             echo "<meta http-equiv='refresh' content='0; URL=../autentica.php'>
@@ -205,6 +217,7 @@ if ($_POST['botao'] == "Incluir dados de proprietário") {
                     </script> ";
             return die;
         } else {
+            mysql_query("UPDATE usuarios SET conselho = '" . $conselho . "' WHERE id_proprietario = '" . $ln['id_proprietario'] . "'");
             echo "<meta http-equiv='refresh' content='0; URL= ../proprietarios.php'>
                     <script type=\"text/javascript\">
                     alert(\"Atualização realizada com sucesso!  \");

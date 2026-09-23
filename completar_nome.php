@@ -1,6 +1,6 @@
 <?php
 include "conexao.php";
-include "../valida/verifica_autenticacao.php";
+include "valida/verifica_autenticacao.php";
 $q = strtolower($_REQUEST["q"]);
 $sql = "SELECT DISTINCT nome FROM proprietario WHERE nome like '%" . $q . "%'";
 $result = mysql_query($sql);

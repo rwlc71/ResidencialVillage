@@ -130,15 +130,6 @@ $totalHospedes = 0;
                     $sql = mysql_query($sql);
                     $num_rows = mysql_num_rows($sql);
 
-                    if ($num_rows == 0) {
-                        echo "<meta http-equiv='refresh' content='0; URL=consulta_unidade.php'>
-                <script type=\"text/javascript\">
-                alert(\"Não existem dados cadastrados!  \");
-                </script>
-                ";
-                        return die;
-                    }
-//==========================================
                     $where = Array();
 
                     if ($_POST['proprietario']) {

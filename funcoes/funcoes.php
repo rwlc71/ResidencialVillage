@@ -86,6 +86,15 @@ if ($_GET['funcao'] == "excluir") {
         $result2 = mysql_query($sqlHosp);
 
         if ($result2) {
+            $sqlOcorr = mysql_query("DELETE FROM ocorrencias WHERE id_locacao = '" . $_GET['id'] . "'");
+            if (!$sqlOcorr) {
+                $erro = mysql_error();
+                echo "<meta http-equiv='refresh' content='0; URL= ../cadastra_reserva.php'>
+                    <script type=\"text/javascript\">
+                    alert(\"Não é possivel deletar as ocorrências dessa reserva: $erro\");
+                    </script> ";
+                return die;
+            }
             $sql = "DELETE FROM locacao WHERE id_locacao = '" . $_GET['id'] . "'";
             $result3 = mysql_query($sql);
 
@@ -134,6 +143,16 @@ if ($_GET['funcao'] == "excluir") {
         if (mysql_num_rows($sql_locacao) == true) {
 
             while ($ln = mysql_fetch_array($sql_locacao)) {
+                $sqlHospAdm = mysql_query("DELETE FROM hospede WHERE id_locacao = '" . $ln['id_locacao'] . "'");
+                if (!$sqlHospAdm) {
+                    $erro = mysql_error();
+                    echo "<meta http-equiv='refresh' content='0; '>
+                    <script type=\"text/javascript\">
+                    alert(\"Falha ao desvincular hóspedes da reserva - motivo:  $erro   \");
+                    history.back(); 
+                    </script> ";
+                    return die;
+                }
                 $sqloocorrencia = ("DELETE FROM ocorrencias WHERE id_locacao = '" . $ln['id_locacao'] . "'");
                 $resultOcorr = mysql_query($sqloocorrencia);
                 if (!$resultOcorr) {
@@ -164,6 +183,8 @@ if ($_GET['funcao'] == "excluir") {
         $sql_unidade = mysql_query($sql_unidade);
         $ln_unidade = mysql_fetch_array($sql_unidade);
 
+        mysql_query("DELETE FROM registro_ocorrencia WHERE id_unidade = '" . $_GET['id'] . "'");
+
         $sql = ("DELETE FROM unidade WHERE id_unidade = '" . $_GET['id'] . "'");
         $result2 = mysql_query($sql);
         if (!$result2) {
@@ -182,6 +203,82 @@ if ($_GET['funcao'] == "excluir") {
         echo "<meta http-equiv='refresh' content='0; URL= ../consulta_unidade_adm.php'>
  		<script type=\"text/javascript\">
                 alert(\"Desvinculação realizada com Sucesso!\");
+                </script>  ";
+        Return die;
+    }
+
+    if ($_GET['t'] == 'exmat') {
+        $idProp = mysql_real_escape_string($_GET['id']);
+        $sqlProp = mysql_query("SELECT * FROM proprietario WHERE id_proprietario = '" . $idProp . "'");
+        if (!$sqlProp || mysql_num_rows($sqlProp) == 0) {
+            echo "<meta http-equiv='refresh' content='0; URL= ../Excluir_usuario.php'>
+                <script type=\"text/javascript\">
+                alert(\"Usuário não encontrado para exclusão.\");
+                </script> ";
+            return die;
+        }
+
+        $sqlLocVig = mysql_query("SELECT loc.* FROM locacao loc
+            LEFT JOIN unidade uni ON uni.id_unidade = loc.id_unidade
+            WHERE loc.id_proprietario = '" . $idProp . "' OR uni.id_proprietario = '" . $idProp . "'");
+        if ($sqlLocVig) {
+            while ($lnLocVig = mysql_fetch_array($sqlLocVig)) {
+                if (verificaRange($lnLocVig['dt_entrada'], $lnLocVig['dt_saida'])) {
+                    echo "<meta http-equiv='refresh' content='0; URL= ../Excluir_usuario.php'>
+                        <script type=\"text/javascript\">
+                        alert(\"DELEÇÃO NÃO REALIZADA - Existem reservas vigentes vinculadas a este usuário!\");
+                        </script> ";
+                    return die;
+                }
+            }
+        }
+
+        $sqlLocAll = mysql_query("SELECT loc.* FROM locacao loc
+            LEFT JOIN unidade uni ON uni.id_unidade = loc.id_unidade
+            WHERE loc.id_proprietario = '" . $idProp . "' OR uni.id_proprietario = '" . $idProp . "'");
+        if ($sqlLocAll) {
+            while ($lnLoc = mysql_fetch_array($sqlLocAll)) {
+                $idLoc = $lnLoc['id_locacao'];
+                mysql_query("DELETE FROM hospede WHERE id_locacao = '" . $idLoc . "'");
+                mysql_query("DELETE FROM ocorrencias WHERE id_locacao = '" . $idLoc . "'");
+                if (!empty($lnLoc['autorizacao_hospedagem']) && file_exists("../documentostitularidade/" . $lnLoc['autorizacao_hospedagem'])) {
+                    unlink("../documentostitularidade/" . $lnLoc['autorizacao_hospedagem']);
+                }
+                if (!empty($lnLoc['doc_identificacao_resp']) && file_exists("../documentostitularidade/" . $lnLoc['doc_identificacao_resp'])) {
+                    unlink("../documentostitularidade/" . $lnLoc['doc_identificacao_resp']);
+                }
+            }
+        }
+        mysql_query("DELETE FROM locacao WHERE id_proprietario = '" . $idProp . "'");
+        mysql_query("DELETE FROM locacao WHERE id_unidade IN (SELECT id_unidade FROM (SELECT id_unidade FROM unidade WHERE id_proprietario = '" . $idProp . "') tmp)");
+
+        $sqlUni = mysql_query("SELECT * FROM unidade WHERE id_proprietario = '" . $idProp . "'");
+        if ($sqlUni) {
+            while ($lnUni = mysql_fetch_array($sqlUni)) {
+                mysql_query("DELETE FROM registro_ocorrencia WHERE id_unidade = '" . $lnUni['id_unidade'] . "'");
+                if (!empty($lnUni['comprovante_titularidade']) && file_exists("../documentostitularidade/" . $lnUni['comprovante_titularidade'])) {
+                    unlink("../documentostitularidade/" . $lnUni['comprovante_titularidade']);
+                }
+            }
+        }
+        mysql_query("DELETE FROM unidade WHERE id_proprietario = '" . $idProp . "'");
+        mysql_query("DELETE FROM dependente WHERE id_proprietario = '" . $idProp . "'");
+        mysql_query("DELETE FROM pets WHERE id_proprietario = '" . $idProp . "'");
+        mysql_query("DELETE FROM usuarios WHERE id_proprietario = '" . $idProp . "'");
+
+        $sqlDelProp = mysql_query("DELETE FROM proprietario WHERE id_proprietario = '" . $idProp . "'");
+        if (!$sqlDelProp) {
+            $erro = mysql_error();
+            echo "<meta http-equiv='refresh' content='0; URL= ../Excluir_usuario.php'>
+                <script type=\"text/javascript\">
+                alert(\"Falha ao excluir o usuário: $erro\");
+                </script> ";
+            return die;
+        }
+
+        echo "<meta http-equiv='refresh' content='0; URL= ../Excluir_usuario.php'>
+ 		<script type=\"text/javascript\">
+                alert(\"Usuário excluído com sucesso!\");
                 </script>  ";
         Return die;
     }

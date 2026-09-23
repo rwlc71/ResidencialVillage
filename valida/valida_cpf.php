@@ -141,6 +141,18 @@ function validarCNPJ($cnpj) {
     return true;
 }
 
+function mensagemCpfCnpjInvalido($valor) {
+    $valor = preg_replace('/[^0-9]/', '', $valor);
+    $qtd = strlen($valor);
+    if ($qtd === 14) {
+        return 'Número de CNPJ inválido!';
+    }
+    if ($qtd === 11) {
+        return 'Número de CPF inválido!';
+    }
+    return 'Número de CPF ou CNPJ inválido! Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.';
+}
+
 function validarCPF1($cpf) {
 	echo("Entrou na validação <br>");
 	echo($cpf);

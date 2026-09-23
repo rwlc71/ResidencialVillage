@@ -1,1 +1,29 @@
-<?php// Configuração do cabeçalho para charset UTF-8header('Content-Type: text/html; charset=utf-8');$username = 'bdcasasvillage';$password = 'Village@2024';// Captura do termo digitado pelo usuário$q = isset($_REQUEST["term"]) ? $_REQUEST["term"] : '';// Configurações de conexão com o banco de dados (substitua pelos seus dados)$host = 'bdcasasvillage.mysql.dbaas.com.br';$user = 'bdcasasvillage';   // Nome de usuário do banco de dados$pass = 'bdcasasvillage';     // Senha do banco de dados$db = 'nome_do_banco'; // Nome do banco de dados// Conectando ao banco de dados usando MySQLi$mysqli = new mysqli($host, $user, $pass, $db);// Verifica se houve erro na conexãoif ($mysqli->connect_error) {    die('Erro de conexão (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);}// Define o conjunto de caracteres para UTF-8$mysqli->set_charset("utf8");// Executa a consulta$sql = "SELECT nome FROM proprietario WHERE nome LIKE '%" . $mysqli->real_escape_string($q) . "%'";echo $sql . '<p>';echo ' / ';echo $sql;echo '<p>';$result = $mysqli->query($sql);// Verifica se a consulta foi bem-sucedidaif (!$result) {    die('Erro na consulta: ' . $mysqli->error);}// Exibe os resultadoswhile ($reg = $result->fetch_assoc()) {    echo $reg["nome"] . "\n";}// Fecha a conexão$mysqli->close();?>
+<?php
+header('Content-Type: text/html; charset=utf-8');
+include "conexao.php";
+include "valida/verifica_autenticacao.php";
+
+$q = '';
+if (isset($_REQUEST['term'])) {
+    $q = $_REQUEST['term'];
+} elseif (isset($_REQUEST['valor'])) {
+    $q = $_REQUEST['valor'];
+} elseif (isset($_REQUEST['q'])) {
+    $q = $_REQUEST['q'];
+}
+$q = trim($q);
+if ($q === '') {
+    exit;
+}
+
+$q = mysql_real_escape_string($q);
+$sql = "SELECT CPF FROM proprietario WHERE nome LIKE '%" . $q . "%' LIMIT 1";
+$result = mysql_query($sql);
+if (!$result) {
+    exit;
+}
+
+if ($reg = mysql_fetch_array($result)) {
+    echo $reg['CPF'];
+}
+?>

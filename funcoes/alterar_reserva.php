@@ -161,14 +161,14 @@ if ($botao == "Salvar Alterações") {
     $dt_saida = date('Y-m-d', strtotime(str_replace('/', '-', $_POST['dt_saida']))); // Converte para '2024-12-10'
 
     if (mysql_num_rows($sql)) { //Alteração
-//        If (!verificaRangeDataUnidadeLocacao($id_unidade, $dt_entrada, $dt_saida, $id_locacao)) {
-//            echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
-//            <script type=\"text/javascript\">
-//            alert(\"CADASTRO NÃO REALIZADO!   \");
-//            alert(\"EXISTEM LOCAÇÕES VIGENTES PARA A UNIDADE E PERÍODO SELECIONADO!  \");
-//            </script> ";
-//            return die;
-//        }
+        If (!verificaRangeDataUnidadeLocacao($id_unidade, $dt_entrada, $dt_saida, $id_locacao)) {
+            echo "<meta http-equiv='refresh' content='0; URL= ../editar_reserva.php?id=$id_locacao'>
+            <script type=\"text/javascript\">
+            alert(\"CADASTRO NÃO REALIZADO!   \");
+            alert(\"EXISTEM LOCAÇÕES VIGENTES PARA A UNIDADE E PERÍODO SELECIONADO!  \");
+            </script> ";
+            return die;
+        }
 
     $codvalidacao = gerarCodigo();
     $codvalidacao = 'AlT' . $codvalidacao . $id_locacao;
@@ -237,33 +237,19 @@ if ($botao == "Salvar Alterações") {
 
 //===================== Funções locais
 function verificaRangeDataUnidadeLocacao($id_unidade, $dt_entrada, $dt_saida, $id_locacao) {
-
-//    $sql_locacao = "SELECT COUNT(*) as total FROM locacao WHERE
-//	(id_unidade = '$id_unidade' AND ((dt_entrada >= '$dt_entrada' AND dt_entrada <= '$dt_saida')
-//        OR (dt_saida >= '$dt_entrada' AND dt_saida <= '$dt_saida')
-//        OR (dt_entrada < '$dt_entrada' AND dt_saida > '$dt_saida')))";
-//    echo($sql_locacao);
-//    echo('<p>');
-// 
-    $sql_locacao = "SELECT * FROM locacao WHERE (id_unidade = '$id_unidade' and dt_entrada < '$dt_saida' AND dt_saida > '$dt_entrada')";
-
-//    echo('<p>');
-//    echo($id_locacao);
-//    echo('<p>');
-//    echo($sql_locacao);
-//    echo('<p>');
-
+    $id_unidade = mysql_real_escape_string($id_unidade);
+    $dt_entrada = mysql_real_escape_string($dt_entrada);
+    $dt_saida = mysql_real_escape_string($dt_saida);
+    $id_locacao = mysql_real_escape_string($id_locacao);
+    $sql_locacao = "SELECT id_locacao FROM locacao
+        WHERE id_unidade = '$id_unidade'
+        AND id_locacao <> '$id_locacao'
+        AND dt_entrada < '$dt_saida'
+        AND dt_saida > '$dt_entrada'";
     $sql_locacao = mysql_query($sql_locacao);
-    $verifica = 'true';
-    while ($registros = mysql_fetch_array($sql_locacao)) {
-        if ($registros['id_locacao'] !== $id_locacao) {
-            $verifica = 'false';
-        }
-    }
-    if ($verifica == 'true') {
-        return true;
-    } else {
+    if (mysql_num_rows($sql_locacao) > 0) {
         return false;
     }
+    return true;
 }
 ?>

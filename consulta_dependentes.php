@@ -93,15 +93,6 @@ $totalHospedes = 0;
                     $sql = mysql_query($sql);
                     $num_rows = mysql_num_rows($sql);
 
-                    if ($num_rows == 0) {
-                        echo "<meta http-equiv='refresh' content='0; URL=home.php'>
-                <script type=\"text/javascript\">
-                alert(\"Não existem dados cadastrados!  \");
-                </script>
-                ";
-                        return die;
-                    }
-//==========================================
                     $where = Array();
 
                     if ($_POST['proprietario']) {
@@ -132,12 +123,10 @@ $totalHospedes = 0;
 //                exit();
 
                     if ($num_rows == 0) {
-                        echo "<meta http-equiv='refresh' content='0; URL=consulta_dependentes.php'>
-                <script type=\"text/javascript\">
-                alert(\"Não existem registros cadastrados para a consulta realizada!  \");
-                </script>
-                ";
-                        return die;
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            echo "<script type=\"text/javascript\">alert(\"Não existem registros cadastrados para a consulta realizada!\");</script>";
+                        }
+                        echo '<tr><td colspan="12" align="center"><font size="2" color="#000000">Não existem registros cadastrados para a consulta realizada!</font></td></tr>';
                     }
 //==========================================                    
                     while ($ln = mysql_fetch_array($filtro)) {
